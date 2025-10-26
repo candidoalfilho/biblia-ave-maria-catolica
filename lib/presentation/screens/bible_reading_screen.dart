@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:google_mobile_ads/google_mobile_ads.dart';
 import '../../bloc/bible_bloc/bible_bloc.dart';
 import '../../bloc/favorites_bloc/favorites_bloc.dart';
 import '../../bloc/tts_bloc/tts_bloc.dart';
@@ -21,22 +22,84 @@ class _BibleReadingScreenState extends State<BibleReadingScreen> {
   bool _isSearching = false;
   String? _selectedBook;
   int? _selectedChapter;
+  BannerAd? _bannerAd;
+  bool _isBannerAdReady = false;
+  InterstitialAd? _interstitialAd;
+  int _chapterReadCount = 0;
+  static const int _chaptersForInterstitial = 3;
 
   @override
   void initState() {
     super.initState();
     context.read<BibleBloc>().add(const LoadBible());
     context.read<FavoritesBloc>().add(const LoadFavorites());
+    _loadBannerAd();
+    _loadInterstitialAd();
+  }
+
+  void _loadBannerAd() {
+    _bannerAd = BannerAd(
+      size: AdSize.banner,
+      adUnitId: 'ca-app-pub-9415784539457110/9432634518',
+      listener: BannerAdListener(
+        onAdLoaded: (_) {
+          setState(() {
+            _isBannerAdReady = true;
+          });
+        },
+        onAdFailedToLoad: (ad, err) {
+          print('Banner failed to load: $err');
+          ad.dispose();
+        },
+      ),
+      request: const AdRequest(),
+    )..load();
+  }
+
+  void _loadInterstitialAd() {
+    InterstitialAd.load(
+      adUnitId: 'ca-app-pub-9415784539457110/2874771507',
+      request: const AdRequest(),
+      adLoadCallback: InterstitialAdLoadCallback(
+        onAdLoaded: (InterstitialAd ad) {
+          _interstitialAd = ad;
+          _interstitialAd?.fullScreenContentCallback = FullScreenContentCallback(
+            onAdDismissedFullScreenContent: (InterstitialAd ad) {
+              ad.dispose();
+              _loadInterstitialAd(); // Load next ad
+            },
+            onAdFailedToShowFullScreenContent: (InterstitialAd ad, AdError error) {
+              print('Interstitial failed to show: $error');
+              ad.dispose();
+              _loadInterstitialAd(); // Load next ad
+            },
+          );
+        },
+        onAdFailedToLoad: (LoadAdError error) {
+          print('Interstitial failed to load: $error');
+        },
+      ),
+    );
+  }
+
+  void _showInterstitialAdIfNeeded() {
+    _chapterReadCount++;
+    if (_chapterReadCount >= _chaptersForInterstitial && _interstitialAd != null) {
+      _interstitialAd?.show();
+      _chapterReadCount = 0; // Reset counter
+    }
   }
 
   @override
   void dispose() {
     _searchController.dispose();
+    _bannerAd?.dispose();
+    _interstitialAd?.dispose();
     super.dispose();
   }
 
   void _onSearchChanged(String query) {
-    if (query.length >= 2) {
+    if (query.isNotEmpty && query.length >= 2) {
       setState(() {
         _isSearching = true;
       });
@@ -45,6 +108,9 @@ class _BibleReadingScreenState extends State<BibleReadingScreen> {
       setState(() {
         _isSearching = false;
       });
+      if (_selectedBook == null && _selectedChapter == null) {
+        context.read<BibleBloc>().add(const LoadBible());
+      }
       context.read<BibleBloc>().add(const ClearSearch());
     }
   }
@@ -75,6 +141,7 @@ class _BibleReadingScreenState extends State<BibleReadingScreen> {
     setState(() {
       _selectedChapter = chapter;
     });
+    _showInterstitialAdIfNeeded(); // Show interstitial after reading 5 chapters
   }
 
   void _onBackToBooks() {
@@ -99,7 +166,7 @@ class _BibleReadingScreenState extends State<BibleReadingScreen> {
       body: Column(
         children: [
           // Search Bar
-          if(_selectedBook == null)...[
+          if(_selectedBook == null)
           Padding(
             padding: const EdgeInsets.all(AppConstants.defaultPadding),
             child: custom.SearchBar(
@@ -108,7 +175,7 @@ class _BibleReadingScreenState extends State<BibleReadingScreen> {
               onSubmitted: _onSearchSubmitted,
               onClear: _onSearchClear,
             ),
-          ),],
+          ),
           // Content
           Expanded(
             child: BlocBuilder<BibleBloc, BibleState>(
@@ -187,6 +254,14 @@ class _BibleReadingScreenState extends State<BibleReadingScreen> {
               },
             ),
           ),
+          // Banner Ad
+          if (_isBannerAdReady && _bannerAd != null && _selectedBook == null)
+            Container(
+              alignment: Alignment.center,
+              width: _bannerAd!.size.width.toDouble(),
+              height: _bannerAd!.size.height.toDouble(),
+              child: AdWidget(ad: _bannerAd!),
+            ),
         ],
       ),
     );

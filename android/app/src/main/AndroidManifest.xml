@@ -6,7 +6,7 @@
     <application
         android:label="Bíblia Ave Maria Católica"
         android:name="${applicationName}"
-        android:icon="@mipmap/ic_launcher">
+        android:icon="@mipmap/launcher_icon">
         
         <!-- AdMob App ID -->
         <meta-data
