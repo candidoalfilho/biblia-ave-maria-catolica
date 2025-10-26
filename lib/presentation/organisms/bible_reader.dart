@@ -12,12 +12,14 @@ class BibleReader extends StatefulWidget {
   final String? initialBook;
   final int? initialChapter;
   final List<dynamic>? chapters;
+  final VoidCallback? onChapterRead;
 
   const BibleReader({
     super.key,
     this.initialBook,
     this.initialChapter,
     this.chapters,
+    this.onChapterRead,
   });
 
   @override
@@ -45,6 +47,11 @@ class _BibleReaderState extends State<BibleReader> {
         )).toList(),
       )).toList();
     }
+    
+    // Notify that the initial chapter was loaded
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      widget.onChapterRead?.call();
+    });
   }
 
   void _loadChapters(String bookName) {
@@ -60,6 +67,8 @@ class _BibleReaderState extends State<BibleReader> {
       _currentBook = bookName;
       _currentChapter = chapter;
     });
+    // Notify that a chapter was read
+    widget.onChapterRead?.call();
   }
 
   void _previousChapter() {

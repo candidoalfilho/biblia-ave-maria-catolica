@@ -141,7 +141,11 @@ class _BibleReadingScreenState extends State<BibleReadingScreen> {
     setState(() {
       _selectedChapter = chapter;
     });
-    _showInterstitialAdIfNeeded(); // Show interstitial after reading 5 chapters
+    // Interstitial will be shown via callback when chapter is actually loaded
+  }
+  
+  void _onChapterRead() {
+    _showInterstitialAdIfNeeded(); // Show interstitial after reading chapters
   }
 
   void _onBackToBooks() {
@@ -241,6 +245,7 @@ class _BibleReadingScreenState extends State<BibleReadingScreen> {
                         initialBook: _selectedBook,
                         initialChapter: _selectedChapter,
                         chapters: selectedBook?.chapters,
+                        onChapterRead: _onChapterRead,
                       );
                     } else {
                       return _buildChapterSelector(state.bible);
