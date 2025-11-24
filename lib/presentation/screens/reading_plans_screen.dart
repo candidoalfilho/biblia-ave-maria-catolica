@@ -198,6 +198,19 @@ class _ReadingPlansScreenState extends State<ReadingPlansScreen> {
         child: InkWell(
           onTap: () {
             context.read<ReadingPlanBloc>().add(StartReadingPlan(plan));
+            ScaffoldMessenger.of(context).showSnackBar(
+              SnackBar(
+                content: Text('Plano "${plan.name}" iniciado!'),
+                backgroundColor: Theme.of(context).primaryColor,
+                behavior: SnackBarBehavior.floating,
+                duration: const Duration(seconds: 2),
+                action: SnackBarAction(
+                  label: 'OK',
+                  textColor: Colors.white,
+                  onPressed: () {},
+                ),
+              ),
+            );
           },
           borderRadius: BorderRadius.circular(16),
           child: Padding(

@@ -66,6 +66,9 @@ class _MainTemplateState extends State<MainTemplate> {
             currentIndex: _currentIndex,
             onTap: _onTabTapped,
             type: BottomNavigationBarType.fixed,
+            backgroundColor: Theme.of(context).primaryColor,
+            selectedItemColor: Colors.white,
+            unselectedItemColor: Colors.white.withOpacity(0.6),
             items: const [
               BottomNavigationBarItem(
                 icon: Icon(Icons.menu_book),

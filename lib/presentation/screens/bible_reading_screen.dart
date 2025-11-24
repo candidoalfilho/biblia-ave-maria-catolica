@@ -162,7 +162,12 @@ class _BibleReadingScreenState extends State<BibleReadingScreen> {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: Text(_selectedBook ?? 'Bíblia Ave Maria'),
+        title: Text(
+          _selectedBook ?? 'Bíblia Ave Maria',
+          style: const TextStyle(color: Colors.black),
+        ),
+        backgroundColor: Colors.grey[50],
+        iconTheme: const IconThemeData(color: Colors.black),
         leading: _selectedBook != null
             ? IconButton(
                 icon: const Icon(Icons.arrow_back),
@@ -184,6 +189,7 @@ class _BibleReadingScreenState extends State<BibleReadingScreen> {
                         style: const TextStyle(
                           fontWeight: FontWeight.bold,
                           fontSize: 16,
+                          color: Colors.black,
                         ),
                       ),
                     ],
@@ -197,17 +203,6 @@ class _BibleReadingScreenState extends State<BibleReadingScreen> {
       ),
       body: Column(
         children: [
-          // Search Bar
-          if(_selectedBook == null)
-          Padding(
-            padding: const EdgeInsets.all(AppConstants.defaultPadding),
-            child: custom.SearchBar(
-              controller: _searchController,
-              onChanged: _onSearchChanged,
-              onSubmitted: _onSearchSubmitted,
-              onClear: _onSearchClear,
-            ),
-          ),
           // Content
           Expanded(
             child: BlocBuilder<BibleBloc, BibleState>(
@@ -410,8 +405,8 @@ class _BibleReadingScreenState extends State<BibleReadingScreen> {
                       Text(
                         testament.name,
                         style: GoogleFonts.playfairDisplay(
-                          fontSize: 15,
-                          fontWeight: FontWeight.w600,
+                          fontSize: 18,
+                          fontWeight: FontWeight.w800,
                           color: Colors.black87,
                         ),
                         maxLines: 1,
@@ -421,7 +416,8 @@ class _BibleReadingScreenState extends State<BibleReadingScreen> {
                       Text(
                         '${testament.chapters.length} capítulos',
                         style: GoogleFonts.sourceSans3(
-                          fontSize: 12,
+                          fontSize: 16,
+                          fontWeight: FontWeight.w700,
                           color: Colors.grey[600],
                         ),
                       ),
@@ -502,11 +498,14 @@ class _BibleReadingScreenState extends State<BibleReadingScreen> {
       decoration: BoxDecoration(
         color: Colors.white,
         borderRadius: BorderRadius.circular(12),
+        border: Border.all(color: Colors.grey[400]!),
         boxShadow: [
           BoxShadow(
             color: Colors.black.withOpacity(0.03),
             blurRadius: 6,
             offset: const Offset(0, 2),
+            spreadRadius: 1,
+            blurStyle: BlurStyle.inner,
           ),
         ],
       ),
