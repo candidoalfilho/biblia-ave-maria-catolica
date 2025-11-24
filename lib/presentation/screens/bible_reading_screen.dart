@@ -1,9 +1,11 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:google_mobile_ads/google_mobile_ads.dart';
+import 'package:google_fonts/google_fonts.dart';
 import '../../bloc/bible_bloc/bible_bloc.dart';
 import '../../bloc/favorites_bloc/favorites_bloc.dart';
 import '../../bloc/tts_bloc/tts_bloc.dart';
+import '../../bloc/streak_bloc/streak_bloc.dart';
 import '../molecules/search_bar.dart' as custom;
 import '../molecules/verse_card.dart';
 import '../organisms/bible_reader.dart';
@@ -146,6 +148,7 @@ class _BibleReadingScreenState extends State<BibleReadingScreen> {
   
   void _onChapterRead() {
     _showInterstitialAdIfNeeded(); // Show interstitial after reading chapters
+    context.read<StreakBloc>().add(const UpdateStreak());
   }
 
   void _onBackToBooks() {
@@ -166,6 +169,31 @@ class _BibleReadingScreenState extends State<BibleReadingScreen> {
                 onPressed: _onBackToBooks,
               )
             : null,
+        actions: [
+          BlocBuilder<StreakBloc, StreakState>(
+            builder: (context, state) {
+              if (state is StreakLoaded) {
+                return Padding(
+                  padding: const EdgeInsets.only(right: 16.0),
+                  child: Row(
+                    children: [
+                      const Icon(Icons.local_fire_department, color: Colors.orange),
+                      const SizedBox(width: 4),
+                      Text(
+                        '${state.streak}',
+                        style: const TextStyle(
+                          fontWeight: FontWeight.bold,
+                          fontSize: 16,
+                        ),
+                      ),
+                    ],
+                  ),
+                );
+              }
+              return const SizedBox.shrink();
+            },
+          ),
+        ],
       ),
       body: Column(
         children: [
@@ -273,25 +301,28 @@ class _BibleReadingScreenState extends State<BibleReadingScreen> {
   }
 
   Widget _buildBooksList(dynamic bible) {
-    return ListView(
-      padding: const EdgeInsets.all(AppConstants.defaultPadding),
-      children: [
-        // Old Testament
-        _buildTestamentSection(
-          'Antigo Testamento',
-          bible.oldTestament,
-          Icons.menu_book,
-          Colors.blue,
-        ),
-        const SizedBox(height: AppConstants.largePadding),
-        // New Testament
-        _buildTestamentSection(
-          'Novo Testamento',
-          bible.newTestament,
-          Icons.book,
-          Colors.green,
-        ),
-      ],
+    return Container(
+      color: Colors.grey[50],
+      child: ListView(
+        padding: const EdgeInsets.all(AppConstants.defaultPadding),
+        children: [
+          // Old Testament
+          _buildTestamentSection(
+            'Antigo Testamento',
+            bible.oldTestament,
+            Icons.menu_book_rounded,
+            const Color(0xFF6B4423),
+          ),
+          const SizedBox(height: AppConstants.largePadding),
+          // New Testament
+          _buildTestamentSection(
+            'Novo Testamento',
+            bible.newTestament,
+            Icons.auto_stories_rounded,
+            const Color(0xFF2E5C55),
+          ),
+        ],
+      ),
     );
   }
 
@@ -304,41 +335,23 @@ class _BibleReadingScreenState extends State<BibleReadingScreen> {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
-        Container(
-          padding: const EdgeInsets.symmetric(
-            horizontal: AppConstants.defaultPadding,
-            vertical: AppConstants.smallPadding,
-          ),
-          decoration: BoxDecoration(
-            color: color.withOpacity(0.1),
-            borderRadius: BorderRadius.circular(AppConstants.borderRadius),
-            border: Border.all(color: color.withOpacity(0.3)),
-          ),
-          child: Row(
-            children: [
-              Icon(icon, color: color, size: 24),
-              const SizedBox(width: 12),
-              Text(
-                title,
-                style: Theme.of(context).textTheme.titleLarge?.copyWith(
-                  color: color,
-                  fontWeight: FontWeight.bold,
-                ),
-              ),
-            ],
+        Padding(
+          padding: const EdgeInsets.only(bottom: 12),
+          child: Text(
+            title.toUpperCase(),
+            style: GoogleFonts.outfit(
+              fontSize: 12,
+              fontWeight: FontWeight.bold,
+              letterSpacing: 1.2,
+              color: color,
+            ),
           ),
         ),
-        const SizedBox(height: AppConstants.defaultPadding),
-        GridView.builder(
+        ListView.separated(
           shrinkWrap: true,
           physics: const NeverScrollableScrollPhysics(),
-          gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
-            crossAxisCount: 2,
-            childAspectRatio: 3.5,
-            crossAxisSpacing: 12,
-            mainAxisSpacing: 12,
-          ),
           itemCount: testaments.length,
+          separatorBuilder: (context, index) => const SizedBox(height: 12),
           itemBuilder: (context, index) {
             final testament = testaments[index];
             return _buildBookCard(testament, color);
@@ -349,47 +362,75 @@ class _BibleReadingScreenState extends State<BibleReadingScreen> {
   }
 
   Widget _buildBookCard(dynamic testament, Color color) {
-    return Card(
-      elevation: 2,
-      child: InkWell(
-        onTap: () => _onBookSelected(testament.name),
-        borderRadius: BorderRadius.circular(AppConstants.borderRadius),
-        child: Container(
-          padding: const EdgeInsets.symmetric(
-            horizontal: AppConstants.defaultPadding,
-            vertical: AppConstants.smallPadding,
+    return Container(
+      decoration: BoxDecoration(
+        color: Colors.white,
+        borderRadius: BorderRadius.circular(12),
+        boxShadow: [
+          BoxShadow(
+            color: Colors.black.withOpacity(0.03),
+            blurRadius: 8,
+            offset: const Offset(0, 2),
           ),
-          decoration: BoxDecoration(
-            borderRadius: BorderRadius.circular(AppConstants.borderRadius),
-            color: color.withOpacity(0.1),
-            border: Border.all(color: color.withOpacity(0.3)),
-          ),
-          child: Row(
-            children: [
-              Icon(
-                Icons.menu_book,
-                color: color,
-                size: 20,
-              ),
-              const SizedBox(width: 8),
-              Expanded(
-                child: Text(
-                  testament.name,
-                  style: Theme.of(context).textTheme.titleSmall?.copyWith(
-                    fontWeight: FontWeight.bold,
-                    color: color,
+        ],
+      ),
+      child: Material(
+        color: Colors.transparent,
+        child: InkWell(
+          onTap: () => _onBookSelected(testament.name),
+          borderRadius: BorderRadius.circular(12),
+          child: Padding(
+            padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 14),
+            child: Row(
+              children: [
+                Container(
+                  width: 40,
+                  height: 40,
+                  decoration: BoxDecoration(
+                    color: color.withOpacity(0.1),
+                    borderRadius: BorderRadius.circular(8),
                   ),
-                  overflow: TextOverflow.ellipsis,
+                  child: Center(
+                    child: Text(
+                      testament.name.substring(0, 1),
+                      style: GoogleFonts.playfairDisplay(
+                        fontSize: 18,
+                        fontWeight: FontWeight.bold,
+                        color: color,
+                      ),
+                    ),
+                  ),
                 ),
-              ),
-              Text(
-                '${testament.chapters.length}',
-                style: Theme.of(context).textTheme.bodySmall?.copyWith(
-                  color: color.withOpacity(0.7),
-                  fontWeight: FontWeight.w500,
+                const SizedBox(width: 12),
+                Expanded(
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    mainAxisAlignment: MainAxisAlignment.center,
+                    children: [
+                      Text(
+                        testament.name,
+                        style: GoogleFonts.playfairDisplay(
+                          fontSize: 15,
+                          fontWeight: FontWeight.w600,
+                          color: Colors.black87,
+                        ),
+                        maxLines: 1,
+                        overflow: TextOverflow.ellipsis,
+                      ),
+                      const SizedBox(height: 2),
+                      Text(
+                        '${testament.chapters.length} capítulos',
+                        style: GoogleFonts.sourceSans3(
+                          fontSize: 12,
+                          color: Colors.grey[600],
+                        ),
+                      ),
+                    ],
+                  ),
                 ),
-              ),
-            ],
+                Icon(Icons.chevron_right, color: Colors.grey[400], size: 20),
+              ],
+            ),
           ),
         ),
       ),
@@ -418,29 +459,31 @@ class _BibleReadingScreenState extends State<BibleReadingScreen> {
       }
     }
 
-    if (selectedBook == null) {
-      return const Center(
-        child: Text('Livro não encontrado'),
-      );
-    }
+    if (selectedBook == null) return const SizedBox.shrink();
 
-    return Padding(
+    return Container(
+      color: Colors.grey[50],
       padding: const EdgeInsets.all(AppConstants.defaultPadding),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
           Text(
-            'Selecione um capítulo',
-            style: Theme.of(context).textTheme.headlineSmall,
+            'SELECIONE O CAPÍTULO',
+            style: GoogleFonts.outfit(
+              fontSize: 12,
+              fontWeight: FontWeight.bold,
+              letterSpacing: 1.2,
+              color: Colors.grey[600],
+            ),
           ),
-          const SizedBox(height: AppConstants.defaultPadding),
+          const SizedBox(height: 16),
           Expanded(
             child: GridView.builder(
               gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
-                crossAxisCount: 4,
+                crossAxisCount: 5,
                 childAspectRatio: 1,
-                crossAxisSpacing: 12,
-                mainAxisSpacing: 12,
+                crossAxisSpacing: 10,
+                mainAxisSpacing: 10,
               ),
               itemCount: selectedBook.chapters.length,
               itemBuilder: (context, index) {
@@ -455,25 +498,30 @@ class _BibleReadingScreenState extends State<BibleReadingScreen> {
   }
 
   Widget _buildChapterCard(int chapterNumber) {
-    return Card(
-      elevation: 2,
-      child: InkWell(
-        onTap: () => _onChapterSelected(chapterNumber),
-        borderRadius: BorderRadius.circular(AppConstants.borderRadius),
-        child: Container(
-          decoration: BoxDecoration(
-            borderRadius: BorderRadius.circular(AppConstants.borderRadius),
-            color: Theme.of(context).primaryColor.withOpacity(0.1),
-            border: Border.all(
-              color: Theme.of(context).primaryColor.withOpacity(0.3),
-            ),
+    return Container(
+      decoration: BoxDecoration(
+        color: Colors.white,
+        borderRadius: BorderRadius.circular(12),
+        boxShadow: [
+          BoxShadow(
+            color: Colors.black.withOpacity(0.03),
+            blurRadius: 6,
+            offset: const Offset(0, 2),
           ),
+        ],
+      ),
+      child: Material(
+        color: Colors.transparent,
+        child: InkWell(
+          onTap: () => _onChapterSelected(chapterNumber),
+          borderRadius: BorderRadius.circular(12),
           child: Center(
             child: Text(
               '$chapterNumber',
-              style: Theme.of(context).textTheme.titleLarge?.copyWith(
-                color: Theme.of(context).primaryColor,
+              style: GoogleFonts.outfit(
+                fontSize: 18,
                 fontWeight: FontWeight.bold,
+                color: Theme.of(context).primaryColor,
               ),
             ),
           ),
@@ -497,11 +545,22 @@ class _BibleReadingScreenState extends State<BibleReadingScreen> {
     }
 
     return ListView.builder(
+      padding: const EdgeInsets.all(AppConstants.defaultPadding),
       itemCount: results.length,
       itemBuilder: (context, index) {
         final result = results[index];
         return VerseCard(
           reference: result,
+          onTap: () {
+            // Navigate to the verse location
+            setState(() {
+              _selectedBook = result.bookName;
+              _selectedChapter = result.chapter;
+              _isSearching = false;
+            });
+            _searchController.clear();
+            context.read<BibleBloc>().add(const ClearSearch());
+          },
           onFavorite: () {
             context.read<FavoritesBloc>().add(
               ToggleFavorite(

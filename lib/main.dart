@@ -11,6 +11,12 @@ import 'bloc/tts_bloc/tts_bloc.dart';
 import 'data/repositories/settings_repository.dart';
 import 'domain/usecases/bible_usecases.dart';
 import 'domain/usecases/favorites_usecases.dart';
+import 'bloc/reading_plan_bloc/reading_plan_bloc.dart';
+import 'bloc/streak_bloc/streak_bloc.dart';
+import 'bloc/daily_reflection_bloc/daily_reflection_bloc.dart';
+import 'data/repositories/reading_plans_repository.dart';
+import 'data/repositories/streak_repository.dart';
+import 'data/repositories/reflections_repository.dart';
 
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
@@ -57,6 +63,21 @@ class BibleApp extends StatelessWidget {
           create: (context) => TtsBloc(
             settingsRepository: getIt<SettingsRepository>(),
           )..add(const InitializeTts()),
+        ),
+        BlocProvider<ReadingPlanBloc>(
+          create: (context) => ReadingPlanBloc(
+            repository: getIt<ReadingPlansRepository>(),
+          )..add(const LoadReadingPlans()),
+        ),
+        BlocProvider<StreakBloc>(
+          create: (context) => StreakBloc(
+            streakRepository: getIt<StreakRepository>(),
+          )..add(const LoadStreak()),
+        ),
+        BlocProvider<DailyReflectionBloc>(
+          create: (context) => DailyReflectionBloc(
+            repository: getIt<ReflectionsRepository>(),
+          )..add(const LoadDailyReflection()),
         ),
       ],
       child: BlocBuilder<ThemeBloc, ThemeState>(

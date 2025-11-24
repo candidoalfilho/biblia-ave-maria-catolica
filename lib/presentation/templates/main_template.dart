@@ -20,8 +20,8 @@ class _MainTemplateState extends State<MainTemplate> {
 
   final List<Widget> _screens = [
     const BibleReadingScreen(),
-    //const ReadingPlansScreen(),
-    //const DailyReflectionScreen(),
+    const ReadingPlansScreen(),
+    const DailyReflectionScreen(),
     const SettingsScreen(),
   ];
 
@@ -71,16 +71,14 @@ class _MainTemplateState extends State<MainTemplate> {
                 icon: Icon(Icons.menu_book),
                 label: 'Leitura',
               ),
-              /*
               BottomNavigationBarItem(
                 icon: Icon(Icons.calendar_today),
                 label: 'Planos',
               ),
-              
               BottomNavigationBarItem(
                 icon: Icon(Icons.lightbulb),
                 label: 'Reflexão',
-              ),*/
+              ),
               BottomNavigationBarItem(
                 icon: Icon(Icons.settings),
                 label: 'Configurações',

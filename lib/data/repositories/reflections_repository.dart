@@ -1,19 +1,25 @@
+import 'dart:convert';
 import 'package:hive/hive.dart';
 import 'package:injectable/injectable.dart';
 import '../models/bible_models.dart';
 import '../../domain/entities/bible_entity.dart';
 
-@injectable
+@singleton
 class ReflectionsRepository {
   static const String _boxName = 'daily_reflections';
-  late Box<DailyReflection> _box;
+  late Box<String> _box;
 
   Future<void> init() async {
-    _box = await Hive.openBox<DailyReflection>(_boxName);
+    _box = await Hive.openBox<String>(_boxName);
   }
 
   Future<List<DailyReflectionEntity>> getAllReflections() async {
-    final reflections = _box.values.toList();
+    final reflections = _box.values
+        .map((jsonString) => DailyReflection.fromJson(
+              Map<String, dynamic>.from(jsonDecode(jsonString) as Map),
+            ))
+        .toList();
+    
     return reflections
         .map((reflection) => DailyReflectionEntity(
               id: reflection.id,
@@ -41,12 +47,16 @@ class ReflectionsRepository {
       verseNumber: reflection.verseNumber,
       date: reflection.date,
     );
-    await _box.put(reflection.id, reflectionModel);
+    await _box.put(reflection.id, jsonEncode(reflectionModel.toJson()));
   }
 
   Future<DailyReflectionEntity?> getReflection(String id) async {
-    final reflection = _box.get(id);
-    if (reflection == null) return null;
+    final jsonString = _box.get(id);
+    if (jsonString == null) return null;
+
+    final reflection = DailyReflection.fromJson(
+      Map<String, dynamic>.from(jsonDecode(jsonString) as Map),
+    );
 
     return DailyReflectionEntity(
       id: reflection.id,
@@ -62,28 +72,84 @@ class ReflectionsRepository {
   }
 
   Future<DailyReflectionEntity?> getReflectionByDate(DateTime date) async {
-    final reflections = _box.values.toList();
-    final reflection = reflections.firstWhere(
-      (reflection) => 
-          reflection.date.year == date.year &&
-          reflection.date.month == date.month &&
-          reflection.date.day == date.day,
-      orElse: () => throw StateError('Reflection not found'),
-    );
+    if (_box.isEmpty) {
+      await _seedReflections();
+    }
 
-    if (reflection == null) return null;
+    final reflections = _box.values
+        .map((jsonString) => DailyReflection.fromJson(
+              Map<String, dynamic>.from(jsonDecode(jsonString) as Map),
+            ))
+        .toList();
+    
+    try {
+      final reflectionModel = reflections.firstWhere(
+        (reflection) => 
+            reflection.date.year == date.year &&
+            reflection.date.month == date.month &&
+            reflection.date.day == date.day,
+      );
+      
+      return DailyReflectionEntity(
+        id: reflectionModel.id,
+        title: reflectionModel.title,
+        verse: reflectionModel.verse,
+        text: reflectionModel.text,
+        reflection: reflectionModel.reflection,
+        bookName: reflectionModel.bookName,
+        chapter: reflectionModel.chapter,
+        verseNumber: reflectionModel.verseNumber,
+        date: reflectionModel.date,
+      );
+    } catch (e) {
+      // Fallback to a random reflection if none exists for today
+      if (reflections.isNotEmpty) {
+        return DailyReflectionEntity(
+          id: reflections.first.id,
+          title: reflections.first.title,
+          verse: reflections.first.verse,
+          text: reflections.first.text,
+          reflection: reflections.first.reflection,
+          bookName: reflections.first.bookName,
+          chapter: reflections.first.chapter,
+          verseNumber: reflections.first.verseNumber,
+          date: date, // Use today's date for the fallback
+        );
+      }
+      return null;
+    }
+  }
 
-    return DailyReflectionEntity(
-      id: reflection.id,
-      title: reflection.title,
-      verse: reflection.verse,
-      text: reflection.text,
-      reflection: reflection.reflection,
-      bookName: reflection.bookName,
-      chapter: reflection.chapter,
-      verseNumber: reflection.verseNumber,
-      date: reflection.date,
-    );
+  Future<void> _seedReflections() async {
+    final now = DateTime.now();
+    final initialReflections = [
+      DailyReflection(
+        id: '1',
+        title: 'O Amor de Deus',
+        verse: 'João 3:16',
+        text: 'Com efeito, de tal modo Deus amou o mundo, que lhe deu seu Filho único, para que todo o que nele crer não pereça, mas tenha a vida eterna.',
+        reflection: 'O amor de Deus é incondicional e infinito. Ele nos entregou seu bem mais precioso para nos salvar. Hoje, reflita sobre como você tem respondido a esse amor imenso em sua vida diária.',
+        bookName: 'João',
+        chapter: 3,
+        verseNumber: 16,
+        date: now,
+      ),
+      DailyReflection(
+        id: '2',
+        title: 'A Força da Fé',
+        verse: 'Hebreus 11:1',
+        text: 'A fé é o fundamento da esperança, é uma certeza a respeito do que não se vê.',
+        reflection: 'Mesmo quando não vemos a solução, a fé nos sustenta. Ela é a certeza de que Deus está agindo em nosso favor. Mantenha sua fé firme, pois ela é a chave para o impossível.',
+        bookName: 'Hebreus',
+        chapter: 11,
+        verseNumber: 1,
+        date: now.add(const Duration(days: 1)),
+      ),
+    ];
+
+    for (var reflection in initialReflections) {
+      await _box.put(reflection.id, jsonEncode(reflection.toJson()));
+    }
   }
 
   Future<void> updateReflection(DailyReflectionEntity reflection) async {

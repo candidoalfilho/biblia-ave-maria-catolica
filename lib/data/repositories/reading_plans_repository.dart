@@ -1,19 +1,30 @@
+import 'dart:convert';
 import 'package:hive/hive.dart';
 import 'package:injectable/injectable.dart';
 import '../models/bible_models.dart';
 import '../../domain/entities/bible_entity.dart';
 
-@injectable
+@singleton
 class ReadingPlansRepository {
   static const String _boxName = 'reading_plans';
-  late Box<ReadingPlan> _box;
+  late Box<String> _box;
 
   Future<void> init() async {
-    _box = await Hive.openBox<ReadingPlan>(_boxName);
+    _box = await Hive.openBox<String>(_boxName);
   }
 
   Future<List<ReadingPlanEntity>> getAllPlans() async {
-    final plans = _box.values.toList();
+    if (_box.isEmpty) {
+      await _seedPlans();
+    }
+    
+    final plans = _box.values
+        .map((jsonString) => ReadingPlan.fromJson(
+              Map<String, dynamic>.from(
+                  jsonDecode(jsonString) as Map),
+            ))
+        .toList();
+    
     return plans
         .map((plan) => ReadingPlanEntity(
               id: plan.id,
@@ -43,6 +54,42 @@ class ReadingPlansRepository {
         .toList();
   }
 
+  Future<void> _seedPlans() async {
+    final plans = [
+      ReadingPlan(
+        id: '1',
+        name: 'Os Evangelhos em 90 Dias',
+        description: 'Uma jornada profunda pela vida e ensinamentos de Jesus Cristo através dos quatro Evangelhos.',
+        durationDays: 90,
+        days: [], // Populate with actual days logic if needed
+        createdAt: DateTime.now(),
+        currentDay: 1,
+      ),
+      ReadingPlan(
+        id: '2',
+        name: 'Salmos de Sabedoria',
+        description: 'Encontre paz e sabedoria divina lendo um Salmo por dia durante um mês.',
+        durationDays: 30,
+        days: [],
+        createdAt: DateTime.now(),
+        currentDay: 1,
+      ),
+      ReadingPlan(
+        id: '3',
+        name: 'Novo Testamento em 6 Meses',
+        description: 'Leia todo o Novo Testamento em 6 meses com leituras diárias selecionadas.',
+        durationDays: 180,
+        days: [],
+        createdAt: DateTime.now(),
+        currentDay: 1,
+      ),
+    ];
+
+    for (var plan in plans) {
+      await _box.put(plan.id, jsonEncode(plan.toJson()));
+    }
+  }
+
   Future<void> addPlan(ReadingPlanEntity plan) async {
     final planModel = ReadingPlan(
       id: plan.id,
@@ -69,7 +116,7 @@ class ReadingPlansRepository {
       completedAt: plan.completedAt,
       currentDay: plan.currentDay,
     );
-    await _box.put(plan.id, planModel);
+    await _box.put(plan.id, jsonEncode(planModel.toJson()));
   }
 
   Future<void> updatePlan(ReadingPlanEntity plan) async {
@@ -81,8 +128,12 @@ class ReadingPlansRepository {
   }
 
   Future<ReadingPlanEntity?> getPlan(String id) async {
-    final plan = _box.get(id);
-    if (plan == null) return null;
+    final jsonString = _box.get(id);
+    if (jsonString == null) return null;
+
+    final plan = ReadingPlan.fromJson(
+      Map<String, dynamic>.from(jsonDecode(jsonString) as Map),
+    );
 
     return ReadingPlanEntity(
       id: plan.id,

@@ -63,7 +63,7 @@ class _SearchBarState extends State<SearchBar> {
     
     return Container(
       decoration: BoxDecoration(
-        color: theme.cardColor,
+        color: theme.primaryColor,
         borderRadius: BorderRadius.circular(AppConstants.borderRadius),
         boxShadow: [
           BoxShadow(

@@ -1,5 +1,11 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:google_fonts/google_fonts.dart';
 import '../../core/constants/app_constants.dart';
+import '../../bloc/daily_reflection_bloc/daily_reflection_bloc.dart';
+import '../../domain/entities/bible_entity.dart';
+
+import 'package:share_plus/share_plus.dart';
 
 class DailyReflectionScreen extends StatefulWidget {
   const DailyReflectionScreen({super.key});
@@ -12,217 +18,248 @@ class _DailyReflectionScreenState extends State<DailyReflectionScreen> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
+      extendBodyBehindAppBar: true,
       appBar: AppBar(
         title: const Text('Reflexão do Dia'),
+        backgroundColor: Colors.transparent,
+        elevation: 0,
         actions: [
           IconButton(
             icon: const Icon(Icons.refresh),
             onPressed: () {
-              // Refresh reflection
-            },
-          ),
-          IconButton(
-            icon: const Icon(Icons.share),
-            onPressed: () {
-              // Share reflection
+              context.read<DailyReflectionBloc>().add(const LoadDailyReflection());
             },
           ),
         ],
       ),
-      body: SingleChildScrollView(
-        padding: const EdgeInsets.all(AppConstants.defaultPadding),
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            // Date Header
-            _buildDateHeader(),
-            const SizedBox(height: AppConstants.largePadding),
-            // Reflection Card
-            _buildReflectionCard(),
-            const SizedBox(height: AppConstants.largePadding),
-            // Previous Reflections
-            _buildPreviousReflections(),
-          ],
-        ),
-      ),
-    );
-  }
-
-  Widget _buildDateHeader() {
-    final now = DateTime.now();
-    final weekdays = [
-      'Domingo',
-      'Segunda-feira',
-      'Terça-feira',
-      'Quarta-feira',
-      'Quinta-feira',
-      'Sexta-feira',
-      'Sábado'
-    ];
-    final months = [
-      'Janeiro',
-      'Fevereiro',
-      'Março',
-      'Abril',
-      'Maio',
-      'Junho',
-      'Julho',
-      'Agosto',
-      'Setembro',
-      'Outubro',
-      'Novembro',
-      'Dezembro'
-    ];
-
-    return Container(
-      padding: const EdgeInsets.all(AppConstants.defaultPadding),
-      decoration: BoxDecoration(
-        gradient: LinearGradient(
-          colors: [
-            Theme.of(context).primaryColor,
-            Theme.of(context).primaryColor.withOpacity(0.8),
-          ],
-          begin: Alignment.topLeft,
-          end: Alignment.bottomRight,
-        ),
-        borderRadius: BorderRadius.circular(AppConstants.borderRadius),
-      ),
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          Text(
-            weekdays[now.weekday % 7],
-            style: Theme.of(context).textTheme.titleLarge?.copyWith(
-              color: Colors.white,
-              fontWeight: FontWeight.bold,
-            ),
-          ),
-          Text(
-            '${now.day} de ${months[now.month - 1]} de ${now.year}',
-            style: Theme.of(context).textTheme.bodyLarge?.copyWith(
-              color: Colors.white.withOpacity(0.9),
-            ),
-          ),
-        ],
-      ),
-    );
-  }
-
-  Widget _buildReflectionCard() {
-    return Card(
-      elevation: 4,
-      child: Padding(
-        padding: const EdgeInsets.all(AppConstants.largePadding),
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            // Verse
-            Container(
-              padding: const EdgeInsets.all(AppConstants.defaultPadding),
-              decoration: BoxDecoration(
-                color: Theme.of(context).primaryColor.withOpacity(0.1),
-                borderRadius: BorderRadius.circular(AppConstants.borderRadius),
-              ),
+      body: BlocBuilder<DailyReflectionBloc, DailyReflectionState>(
+        builder: (context, state) {
+          if (state is DailyReflectionLoading) {
+            return const Center(child: CircularProgressIndicator());
+          } else if (state is DailyReflectionError) {
+            return Center(
               child: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
+                mainAxisAlignment: MainAxisAlignment.center,
                 children: [
-                  Text(
-                    'Salmos 23:1',
-                    style: Theme.of(context).textTheme.titleMedium?.copyWith(
-                      color: Theme.of(context).primaryColor,
-                      fontWeight: FontWeight.bold,
-                    ),
-                  ),
-                  const SizedBox(height: AppConstants.smallPadding),
-                  Text(
-                    '"O Senhor é o meu pastor; nada me faltará."',
-                    style: Theme.of(context).textTheme.bodyLarge?.copyWith(
-                      fontStyle: FontStyle.italic,
-                      height: 1.6,
-                    ),
+                  const Icon(Icons.error_outline, size: 48, color: Colors.red),
+                  const SizedBox(height: 16),
+                  Text(state.message),
+                  const SizedBox(height: 16),
+                  ElevatedButton(
+                    onPressed: () {
+                      context.read<DailyReflectionBloc>().add(const LoadDailyReflection());
+                    },
+                    child: const Text('Tentar Novamente'),
                   ),
                 ],
               ),
-            ),
-            const SizedBox(height: AppConstants.largePadding),
-            // Reflection
-            Text(
-              'Reflexão do Dia',
-              style: Theme.of(context).textTheme.titleLarge?.copyWith(
-                fontWeight: FontWeight.bold,
-              ),
-            ),
-            const SizedBox(height: AppConstants.defaultPadding),
-            Text(
-              'Neste versículo, o salmista expressa uma confiança profunda em Deus como seu pastor. A imagem do pastor é uma das mais reconfortantes na Bíblia, representando cuidado, proteção e provisão. Quando dizemos "O Senhor é o meu pastor", estamos declarando nossa dependência total de Deus e nossa confiança em seu cuidado amoroso.\n\n'
-              'A frase "nada me faltará" não significa que teremos tudo o que queremos, mas sim que Deus suprirá todas as nossas necessidades reais. Ele conhece o que realmente precisamos e quando precisamos. Como um pastor cuida de suas ovelhas, Deus cuida de nós com amor incondicional e sabedoria perfeita.\n\n'
-              'Hoje, lembre-se de que você não está sozinho. O Senhor é seu pastor e está sempre ao seu lado, guiando, protegendo e suprindo suas necessidades.',
-              style: Theme.of(context).textTheme.bodyLarge?.copyWith(
-                height: 1.6,
-              ),
-            ),
-            const SizedBox(height: AppConstants.largePadding),
-            // Actions
-            Row(
-              children: [
-                Expanded(
-                  child: ElevatedButton.icon(
-                    onPressed: () {
-                      // Add to favorites
-                    },
-                    icon: const Icon(Icons.favorite_border),
-                    label: const Text('Favoritar'),
-                  ),
+            );
+          } else if (state is DailyReflectionLoaded) {
+            return Container(
+              decoration: BoxDecoration(
+                gradient: LinearGradient(
+                  begin: Alignment.topCenter,
+                  end: Alignment.bottomCenter,
+                  colors: [
+                    Theme.of(context).primaryColor.withOpacity(0.1),
+                    Colors.white,
+                  ],
                 ),
-                const SizedBox(width: AppConstants.defaultPadding),
-                Expanded(
-                  child: OutlinedButton.icon(
-                    onPressed: () {
-                      // Share
-                    },
-                    icon: const Icon(Icons.share),
-                    label: const Text('Compartilhar'),
-                  ),
+              ),
+              child: SingleChildScrollView(
+                padding: const EdgeInsets.fromLTRB(
+                  AppConstants.defaultPadding,
+                  kToolbarHeight + 40,
+                  AppConstants.defaultPadding,
+                  AppConstants.defaultPadding,
                 ),
-              ],
-            ),
-          ],
-        ),
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    _buildDateHeader(state.reflection.date),
+                    const SizedBox(height: AppConstants.largePadding),
+                    _buildReflectionCard(state.reflection),
+                  ],
+                ),
+              ),
+            );
+          }
+          return const SizedBox.shrink();
+        },
       ),
     );
   }
 
-  Widget _buildPreviousReflections() {
+  Widget _buildDateHeader(DateTime date) {
+    final weekdays = [
+      'Domingo', 'Segunda-feira', 'Terça-feira', 'Quarta-feira',
+      'Quinta-feira', 'Sexta-feira', 'Sábado'
+    ];
+    final months = [
+      'Janeiro', 'Fevereiro', 'Março', 'Abril', 'Maio', 'Junho',
+      'Julho', 'Agosto', 'Setembro', 'Outubro', 'Novembro', 'Dezembro'
+    ];
+
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
         Text(
-          'Reflexões Anteriores',
-          style: Theme.of(context).textTheme.titleLarge?.copyWith(
+          weekdays[date.weekday % 7].toUpperCase(),
+          style: GoogleFonts.outfit(
+            fontSize: 14,
             fontWeight: FontWeight.bold,
+            letterSpacing: 1.2,
+            color: Theme.of(context).primaryColor,
           ),
         ),
-        const SizedBox(height: AppConstants.defaultPadding),
-        // Empty state for now
-        Center(
-          child: Column(
-            children: [
-              Icon(
-                Icons.history,
-                size: 48,
-                color: Colors.grey[400],
-              ),
-              const SizedBox(height: 16),
-              Text(
-                'Nenhuma reflexão anterior',
-                style: Theme.of(context).textTheme.bodyLarge?.copyWith(
-                  color: Colors.grey[600],
-                ),
-              ),
-            ],
+        const SizedBox(height: 8),
+        Text(
+          '${date.day} de ${months[date.month - 1]}',
+          style: GoogleFonts.playfairDisplay(
+            fontSize: 32,
+            fontWeight: FontWeight.bold,
+            color: Colors.black87,
           ),
         ),
       ],
+    );
+  }
+
+  Widget _buildReflectionCard(DailyReflectionEntity reflection) {
+    return Container(
+      decoration: BoxDecoration(
+        color: Colors.white,
+        borderRadius: BorderRadius.circular(24),
+        boxShadow: [
+          BoxShadow(
+            color: Colors.black.withOpacity(0.05),
+            blurRadius: 20,
+            offset: const Offset(0, 10),
+          ),
+        ],
+      ),
+      child: Column(
+        children: [
+          // Image or Gradient Header
+          Container(
+            height: 150,
+            decoration: BoxDecoration(
+              borderRadius: const BorderRadius.vertical(top: Radius.circular(24)),
+              gradient: LinearGradient(
+                colors: [
+                  Theme.of(context).primaryColor,
+                  Theme.of(context).primaryColor.withOpacity(0.7),
+                ],
+                begin: Alignment.topLeft,
+                end: Alignment.bottomRight,
+              ),
+            ),
+            child: Center(
+              child: Icon(
+                Icons.auto_awesome,
+                size: 48,
+                color: Colors.white.withOpacity(0.8),
+              ),
+            ),
+          ),
+          Padding(
+            padding: const EdgeInsets.all(24),
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Text(
+                  reflection.title,
+                  style: GoogleFonts.playfairDisplay(
+                    fontSize: 24,
+                    fontWeight: FontWeight.bold,
+                    color: Colors.black87,
+                  ),
+                ),
+                const SizedBox(height: 16),
+                Container(
+                  padding: const EdgeInsets.all(16),
+                  decoration: BoxDecoration(
+                    color: Theme.of(context).primaryColor.withOpacity(0.05),
+                    borderRadius: BorderRadius.circular(12),
+                    border: Border.all(
+                      color: Theme.of(context).primaryColor.withOpacity(0.1),
+                    ),
+                  ),
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      Text(
+                        reflection.verse,
+                        style: GoogleFonts.outfit(
+                          fontSize: 12,
+                          fontWeight: FontWeight.bold,
+                          color: Theme.of(context).primaryColor,
+                          letterSpacing: 1.0,
+                        ),
+                      ),
+                      const SizedBox(height: 8),
+                      Text(
+                        '"${reflection.text}"',
+                        style: GoogleFonts.lora(
+                          fontSize: 16,
+                          fontStyle: FontStyle.italic,
+                          height: 1.6,
+                          color: Colors.black87,
+                        ),
+                      ),
+                    ],
+                  ),
+                ),
+                const SizedBox(height: 24),
+                Text(
+                  reflection.reflection,
+                  style: GoogleFonts.sourceSans3(
+                    fontSize: 16,
+                    height: 1.8,
+                    color: Colors.black87.withOpacity(0.8),
+                  ),
+                ),
+                const SizedBox(height: 32),
+                Row(
+                  children: [
+                    Expanded(
+                      child: ElevatedButton(
+                        onPressed: () {
+                          Share.share(
+                            '${reflection.title}\n\n"${reflection.text}"\n${reflection.verse}\n\n${reflection.reflection}\n\nCompartilhado via Bíblia Ave Maria',
+                          );
+                        },
+                        style: ElevatedButton.styleFrom(
+                          backgroundColor: Theme.of(context).primaryColor,
+                          foregroundColor: Colors.white,
+                          padding: const EdgeInsets.symmetric(vertical: 16),
+                          shape: RoundedRectangleBorder(
+                            borderRadius: BorderRadius.circular(12),
+                          ),
+                          elevation: 0,
+                        ),
+                        child: const Text('Compartilhar'),
+                      ),
+                    ),
+                    const SizedBox(width: 16),
+                    Container(
+                      decoration: BoxDecoration(
+                        color: Colors.grey[100],
+                        borderRadius: BorderRadius.circular(12),
+                      ),
+                      child: IconButton(
+                        onPressed: () {},
+                        icon: const Icon(Icons.favorite_border),
+                        color: Colors.black54,
+                      ),
+                    ),
+                  ],
+                ),
+              ],
+            ),
+          ),
+        ],
+      ),
     );
   }
 }

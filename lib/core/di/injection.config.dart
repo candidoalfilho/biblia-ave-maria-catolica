@@ -18,6 +18,8 @@ import 'package:biblia_ave_maria_catolica/data/repositories/reflections_reposito
     as _i816;
 import 'package:biblia_ave_maria_catolica/data/repositories/settings_repository.dart'
     as _i436;
+import 'package:biblia_ave_maria_catolica/data/repositories/streak_repository.dart'
+    as _i423;
 import 'package:biblia_ave_maria_catolica/domain/usecases/bible_usecases.dart'
     as _i504;
 import 'package:biblia_ave_maria_catolica/domain/usecases/favorites_usecases.dart'
@@ -37,12 +39,13 @@ extension GetItInjectableX on _i174.GetIt {
       environmentFilter,
     );
     gh.factory<_i311.FavoritesRepository>(() => _i311.FavoritesRepository());
-    gh.factory<_i511.ReadingPlansRepository>(
-        () => _i511.ReadingPlansRepository());
-    gh.factory<_i816.ReflectionsRepository>(
-        () => _i816.ReflectionsRepository());
     gh.factory<_i436.SettingsRepository>(() => _i436.SettingsRepository());
     gh.factory<_i119.BibleRepository>(() => _i119.BibleRepository());
+    gh.singleton<_i511.ReadingPlansRepository>(
+        () => _i511.ReadingPlansRepository());
+    gh.singleton<_i816.ReflectionsRepository>(
+        () => _i816.ReflectionsRepository());
+    gh.lazySingleton<_i423.StreakRepository>(() => _i423.StreakRepository());
     gh.factory<_i504.GetBibleUseCase>(
         () => _i504.GetBibleUseCase(gh<_i119.BibleRepository>()));
     gh.factory<_i504.SearchVersesUseCase>(

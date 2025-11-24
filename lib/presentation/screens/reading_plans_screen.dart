@@ -1,5 +1,10 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:google_fonts/google_fonts.dart';
 import '../../core/constants/app_constants.dart';
+import '../../bloc/reading_plan_bloc/reading_plan_bloc.dart';
+import '../../domain/entities/bible_entity.dart';
+import 'create_reading_plan_screen.dart';
 
 class ReadingPlansScreen extends StatefulWidget {
   const ReadingPlansScreen({super.key});
@@ -12,193 +17,239 @@ class _ReadingPlansScreenState extends State<ReadingPlansScreen> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
+      backgroundColor: Colors.grey[50],
       appBar: AppBar(
-        title: const Text('Planos de Leitura'),
+        title: Text(
+          'Planos de Leitura',
+          style: GoogleFonts.playfairDisplay(
+            fontWeight: FontWeight.bold,
+            color: Colors.black87,
+          ),
+        ),
+        backgroundColor: Colors.transparent,
+        elevation: 0,
+        centerTitle: false,
         actions: [
           IconButton(
-            icon: const Icon(Icons.add),
+            icon: const Icon(Icons.add_circle_outline, color: Colors.black87),
             onPressed: () {
-              // Show create plan dialog
+              Navigator.push(
+                context,
+                MaterialPageRoute(
+                  builder: (context) => CreateReadingPlanScreen(),
+                ),
+              );
             },
           ),
         ],
       ),
-      body: ListView(
-        padding: const EdgeInsets.all(AppConstants.defaultPadding),
-        children: [
-          // Featured Plans
-          _buildFeaturedPlans(),
-          const SizedBox(height: AppConstants.largePadding),
-          // My Plans
-          _buildMyPlans(),
+      body: BlocBuilder<ReadingPlanBloc, ReadingPlanState>(
+        builder: (context, state) {
+          if (state is ReadingPlanLoading) {
+            return const Center(child: CircularProgressIndicator());
+          } else if (state is ReadingPlanError) {
+            return Center(child: Text(state.message));
+          } else if (state is ReadingPlansLoaded) {
+            return ListView(
+              padding: const EdgeInsets.all(AppConstants.defaultPadding),
+              children: [
+                if (state.activePlan != null) ...[
+                  Text(
+                    'EM ANDAMENTO',
+                    style: GoogleFonts.outfit(
+                      fontSize: 12,
+                      fontWeight: FontWeight.bold,
+                      letterSpacing: 1.2,
+                      color: Theme.of(context).primaryColor,
+                    ),
+                  ),
+                  const SizedBox(height: 12),
+                  _buildActivePlanCard(state.activePlan!),
+                  const SizedBox(height: 32),
+                ],
+                
+                Text(
+                  'RECOMENDADOS',
+                  style: GoogleFonts.outfit(
+                    fontSize: 12,
+                    fontWeight: FontWeight.bold,
+                    letterSpacing: 1.2,
+                    color: Colors.grey[600],
+                  ),
+                ),
+                const SizedBox(height: 12),
+                _buildFeaturedPlans(state.plans),
+              ],
+            );
+          }
+          return const SizedBox.shrink();
+        },
+      ),
+    );
+  }
+
+  Widget _buildActivePlanCard(ReadingPlanEntity plan) {
+    final progress = (plan.currentDay ?? 0) / plan.durationDays;
+    
+    return Container(
+      decoration: BoxDecoration(
+        color: Colors.white,
+        borderRadius: BorderRadius.circular(16),
+        boxShadow: [
+          BoxShadow(
+            color: Colors.black.withOpacity(0.05),
+            blurRadius: 10,
+            offset: const Offset(0, 4),
+          ),
         ],
       ),
-    );
-  }
-
-  Widget _buildFeaturedPlans() {
-    return Column(
-      crossAxisAlignment: CrossAxisAlignment.start,
-      children: [
-        Text(
-          'Planos Recomendados',
-          style: Theme.of(context).textTheme.headlineSmall,
-        ),
-        const SizedBox(height: AppConstants.defaultPadding),
-        SizedBox(
-          height: 200,
-          child: ListView(
-            scrollDirection: Axis.horizontal,
-            children: [
-              _buildPlanCard(
-                title: 'Caminho da Fé',
-                description: '7 dias de leitura espiritual',
-                duration: '7 dias',
-                color: Colors.blue,
-                onTap: () {},
-              ),
-              const SizedBox(width: AppConstants.defaultPadding),
-              _buildPlanCard(
-                title: 'Evangelhos em 15 dias',
-                description: 'Leia os 4 evangelhos em 15 dias',
-                duration: '15 dias',
-                color: Colors.green,
-                onTap: () {},
-              ),
-              const SizedBox(width: AppConstants.defaultPadding),
-              _buildPlanCard(
-                title: 'Sabedoria e Paz',
-                description: '30 dias de sabedoria bíblica',
-                duration: '30 dias',
-                color: Colors.purple,
-                onTap: () {},
-              ),
-            ],
-          ),
-        ),
-      ],
-    );
-  }
-
-  Widget _buildMyPlans() {
-    return Column(
-      crossAxisAlignment: CrossAxisAlignment.start,
-      children: [
-        Text(
-          'Meus Planos',
-          style: Theme.of(context).textTheme.headlineSmall,
-        ),
-        const SizedBox(height: AppConstants.defaultPadding),
-        // Empty state
-        Center(
-          child: Column(
-            children: [
-              Icon(
-                Icons.calendar_today,
-                size: 64,
-                color: Colors.grey[400],
-              ),
-              const SizedBox(height: 16),
-              Text(
-                'Nenhum plano ativo',
-                style: Theme.of(context).textTheme.titleMedium?.copyWith(
-                  color: Colors.grey[600],
+      child: Padding(
+        padding: const EdgeInsets.all(20),
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            Row(
+              children: [
+                Container(
+                  padding: const EdgeInsets.all(10),
+                  decoration: BoxDecoration(
+                    color: Theme.of(context).primaryColor.withOpacity(0.1),
+                    borderRadius: BorderRadius.circular(12),
+                  ),
+                  child: Icon(
+                    Icons.bookmark,
+                    color: Theme.of(context).primaryColor,
+                  ),
                 ),
-              ),
-              const SizedBox(height: 8),
-              Text(
-                'Escolha um plano recomendado para começar',
-                style: Theme.of(context).textTheme.bodyMedium?.copyWith(
-                  color: Colors.grey[500],
+                const SizedBox(width: 16),
+                Expanded(
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      Text(
+                        plan.name,
+                        style: GoogleFonts.playfairDisplay(
+                          fontSize: 18,
+                          fontWeight: FontWeight.bold,
+                        ),
+                      ),
+                      Text(
+                        'Dia ${plan.currentDay} de ${plan.durationDays}',
+                        style: GoogleFonts.sourceSans3(
+                          color: Colors.grey[600],
+                        ),
+                      ),
+                    ],
+                  ),
                 ),
-                textAlign: TextAlign.center,
+              ],
+            ),
+            const SizedBox(height: 20),
+            ClipRRect(
+              borderRadius: BorderRadius.circular(4),
+              child: LinearProgressIndicator(
+                value: progress,
+                backgroundColor: Colors.grey[100],
+                valueColor: AlwaysStoppedAnimation(Theme.of(context).primaryColor),
+                minHeight: 6,
               ),
-            ],
-          ),
+            ),
+          ],
         ),
-      ],
-    );
-  }
-
-  Widget _buildPlanCard({
-    required String title,
-    required String description,
-    required String duration,
-    required Color color,
-    required VoidCallback onTap,
-  }) {
-    return Container(
-      width: 200,
-      decoration: BoxDecoration(
-        color: color.withOpacity(0.1),
-        borderRadius: BorderRadius.circular(AppConstants.borderRadius),
-        border: Border.all(color: color.withOpacity(0.3)),
       ),
-      child: InkWell(
-        onTap: onTap,
-        borderRadius: BorderRadius.circular(AppConstants.borderRadius),
-        child: Padding(
-          padding: const EdgeInsets.all(AppConstants.defaultPadding),
-          child: Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              Row(
-                children: [
-                  Container(
-                    padding: const EdgeInsets.all(8),
-                    decoration: BoxDecoration(
-                      color: color,
-                      borderRadius: BorderRadius.circular(8),
-                    ),
-                    child: const Icon(
-                      Icons.book,
-                      color: Colors.white,
-                      size: 20,
+    );
+  }
+
+  Widget _buildFeaturedPlans(List<ReadingPlanEntity> plans) {
+    return ListView.separated(
+      shrinkWrap: true,
+      physics: const NeverScrollableScrollPhysics(),
+      itemCount: plans.length,
+      separatorBuilder: (context, index) => const SizedBox(height: 16),
+      itemBuilder: (context, index) {
+        final plan = plans[index];
+        return _buildPlanCard(plan, index);
+      },
+    );
+  }
+
+  Widget _buildPlanCard(ReadingPlanEntity plan, int index) {
+    final colors = [
+      const Color(0xFF6B4423), // Brown
+      const Color(0xFF2E5C55), // Green
+      const Color(0xFF8B4513), // SaddleBrown
+    ];
+    final color = colors[index % colors.length];
+
+    return Container(
+      decoration: BoxDecoration(
+        color: Colors.white,
+        borderRadius: BorderRadius.circular(16),
+        boxShadow: [
+          BoxShadow(
+            color: Colors.black.withOpacity(0.03),
+            blurRadius: 8,
+            offset: const Offset(0, 2),
+          ),
+        ],
+      ),
+      child: Material(
+        color: Colors.transparent,
+        child: InkWell(
+          onTap: () {
+            context.read<ReadingPlanBloc>().add(StartReadingPlan(plan));
+          },
+          borderRadius: BorderRadius.circular(16),
+          child: Padding(
+            padding: const EdgeInsets.all(20),
+            child: Row(
+              children: [
+                Container(
+                  width: 60,
+                  height: 60,
+                  decoration: BoxDecoration(
+                    color: color.withOpacity(0.1),
+                    borderRadius: BorderRadius.circular(12),
+                  ),
+                  child: Center(
+                    child: Text(
+                      '${plan.durationDays}',
+                      style: GoogleFonts.outfit(
+                        fontSize: 20,
+                        fontWeight: FontWeight.bold,
+                        color: color,
+                      ),
                     ),
                   ),
-                  const Spacer(),
-                  Text(
-                    duration,
-                    style: Theme.of(context).textTheme.bodySmall?.copyWith(
-                      color: color,
-                      fontWeight: FontWeight.bold,
-                    ),
-                  ),
-                ],
-              ),
-              const SizedBox(height: AppConstants.defaultPadding),
-              Text(
-                title,
-                style: Theme.of(context).textTheme.titleMedium?.copyWith(
-                  fontWeight: FontWeight.bold,
                 ),
-              ),
-              const SizedBox(height: 4),
-              Text(
-                description,
-                style: Theme.of(context).textTheme.bodySmall,
-                maxLines: 2,
-                overflow: TextOverflow.ellipsis,
-              ),
-              const Spacer(),
-              Row(
-                children: [
-                  Text(
-                    'Começar',
-                    style: TextStyle(
-                      color: color,
-                      fontWeight: FontWeight.bold,
-                    ),
+                const SizedBox(width: 16),
+                Expanded(
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      Text(
+                        plan.name,
+                        style: GoogleFonts.playfairDisplay(
+                          fontSize: 16,
+                          fontWeight: FontWeight.bold,
+                        ),
+                      ),
+                      const SizedBox(height: 4),
+                      Text(
+                        plan.description,
+                        style: GoogleFonts.sourceSans3(
+                          color: Colors.grey[600],
+                          fontSize: 14,
+                        ),
+                        maxLines: 2,
+                        overflow: TextOverflow.ellipsis,
+                      ),
+                    ],
                   ),
-                  const SizedBox(width: 4),
-                  Icon(
-                    Icons.arrow_forward,
-                    color: color,
-                    size: 16,
-                  ),
-                ],
-              ),
-            ],
+                ),
+                const Icon(Icons.chevron_right, color: Colors.grey),
+              ],
+            ),
           ),
         ),
       ),

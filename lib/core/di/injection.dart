@@ -7,6 +7,8 @@ import '../../data/repositories/reflections_repository.dart';
 import '../../data/repositories/settings_repository.dart';
 import 'injection.config.dart';
 
+import '../../data/models/bible_models.dart';
+
 final getIt = GetIt.instance;
 
 @InjectableInit()
@@ -16,4 +18,8 @@ Future<void> configureDependencies() async {
   
   // Initialize other dependencies
   getIt.init();
+  
+  // Initialize repositories
+  await getIt<ReadingPlansRepository>().init();
+  await getIt<ReflectionsRepository>().init();
 }
