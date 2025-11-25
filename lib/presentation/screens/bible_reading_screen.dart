@@ -164,9 +164,9 @@ class _BibleReadingScreenState extends State<BibleReadingScreen> {
       appBar: AppBar(
         title: Text(
           _selectedBook ?? 'Bíblia Ave Maria',
-          style: const TextStyle(color: Colors.black),
+          style: const TextStyle(color: Colors.white),
         ),
-        backgroundColor: Colors.grey[50],
+        backgroundColor: Theme.of(context).primaryColor,
         iconTheme: const IconThemeData(color: Colors.black),
         leading: _selectedBook != null
             ? IconButton(
@@ -189,7 +189,7 @@ class _BibleReadingScreenState extends State<BibleReadingScreen> {
                         style: const TextStyle(
                           fontWeight: FontWeight.bold,
                           fontSize: 16,
-                          color: Colors.black,
+                          color: Colors.white,
                         ),
                       ),
                     ],
@@ -297,7 +297,7 @@ class _BibleReadingScreenState extends State<BibleReadingScreen> {
 
   Widget _buildBooksList(dynamic bible) {
     return Container(
-      color: Colors.grey[50],
+      color: Theme.of(context).colorScheme.surface,
       child: ListView(
         padding: const EdgeInsets.all(AppConstants.defaultPadding),
         children: [
@@ -404,9 +404,9 @@ class _BibleReadingScreenState extends State<BibleReadingScreen> {
                     children: [
                       Text(
                         testament.name,
-                        style: GoogleFonts.playfairDisplay(
+                        style: GoogleFonts.outfit(
                           fontSize: 18,
-                          fontWeight: FontWeight.w800,
+                          fontWeight: FontWeight.w600,
                           color: Colors.black87,
                         ),
                         maxLines: 1,
@@ -458,7 +458,7 @@ class _BibleReadingScreenState extends State<BibleReadingScreen> {
     if (selectedBook == null) return const SizedBox.shrink();
 
     return Container(
-      color: Colors.grey[50],
+      color: Theme.of(context).scaffoldBackgroundColor,
       padding: const EdgeInsets.all(AppConstants.defaultPadding),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
