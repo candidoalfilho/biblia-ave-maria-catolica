@@ -32,8 +32,8 @@ class AppConstants {
   static const String interstitialAdUnitId = 'ca-app-pub-3940256099942544/1033173712';
   
   // In-App Purchase
-  static const String premiumProductId = 'premium_remove_ads';
-  static const double premiumPrice = 14.90;
+  static const String premiumProductId = 'removeranuncios';
+  static const double premiumPrice = 5.0;
   
   // Reading Plans
   static const List<String> predefinedPlans = [

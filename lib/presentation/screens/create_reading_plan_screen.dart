@@ -46,14 +46,35 @@ class _CreateReadingPlanScreenState extends State<CreateReadingPlanScreen> {
       final description = _descriptionController.text;
       final duration = int.parse(_durationController.text);
 
+      // Calculate current day based on start date
+      // If start date is today or in the past, start at day 1
+      // If start date is in the future, it will start at day 1 when that date arrives
+      final now = DateTime.now();
+      final startDate = DateTime(_startDate.year, _startDate.month, _startDate.day);
+      final today = DateTime(now.year, now.month, now.day);
+      
+      int? currentDay;
+      if (startDate.isBefore(today) || startDate.isAtSameMomentAs(today)) {
+        // Plan should start immediately or has already started
+        final daysSinceStart = today.difference(startDate).inDays;
+        if (daysSinceStart < duration) {
+          currentDay = daysSinceStart + 1; // Day 1 is the first day
+        } else {
+          currentDay = duration; // Plan is completed
+        }
+      } else {
+        // Plan starts in the future, set currentDay to null (not started yet)
+        currentDay = null;
+      }
+
       final newPlan = ReadingPlanEntity(
         id: DateTime.now().millisecondsSinceEpoch.toString(),
         name: name,
         description: description.isEmpty ? 'Plano personalizado' : description,
         durationDays: duration,
         days: [], // Logic to populate days would go here
-        createdAt: DateTime.now(),
-        currentDay: 1,
+        createdAt: _startDate, // Use the selected start date
+        currentDay: currentDay,
       );
 
       context.read<ReadingPlanBloc>().add(StartReadingPlan(newPlan));

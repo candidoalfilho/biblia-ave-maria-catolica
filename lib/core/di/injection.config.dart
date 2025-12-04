@@ -12,6 +12,8 @@ import 'package:biblia_ave_maria_catolica/data/repositories/bible_repository.dar
     as _i119;
 import 'package:biblia_ave_maria_catolica/data/repositories/favorites_repository.dart'
     as _i311;
+import 'package:biblia_ave_maria_catolica/data/repositories/purchase_repository.dart'
+    as _i336;
 import 'package:biblia_ave_maria_catolica/data/repositories/reading_plans_repository.dart'
     as _i511;
 import 'package:biblia_ave_maria_catolica/data/repositories/reflections_repository.dart'
@@ -46,6 +48,8 @@ extension GetItInjectableX on _i174.GetIt {
     gh.singleton<_i816.ReflectionsRepository>(
         () => _i816.ReflectionsRepository());
     gh.lazySingleton<_i423.StreakRepository>(() => _i423.StreakRepository());
+    gh.singleton<_i336.PurchaseRepository>(
+        () => _i336.PurchaseRepository(gh<_i436.SettingsRepository>()));
     gh.factory<_i504.GetBibleUseCase>(
         () => _i504.GetBibleUseCase(gh<_i119.BibleRepository>()));
     gh.factory<_i504.SearchVersesUseCase>(

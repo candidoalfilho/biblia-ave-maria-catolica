@@ -136,12 +136,12 @@ class LiturgyResponse with _$LiturgyResponse {
 
   factory LiturgyResponse.fromJson(Map<String, dynamic> json) {
     return LiturgyResponse(
-      data: json['data'] as String,
+      data: json['data'] ?? '',
       liturgia: json['liturgia'] as String,
       cor: json['cor'] as String,
-      dia: json['dia'] as String,
-      ofertas: json['ofertas'] as String,
-      comunhao: json['comunhao'] as String,
+      dia: json['dia'] ?? '',
+      ofertas: json['ofertas'] ?? '',
+      comunhao: json['comunhao'] ?? '',
       primeiraLeitura: LiturgyReading.fromJson(json['primeiraLeitura'] as Map<String, dynamic>),
       segundaLeitura: _segundaLeituraFromJson(json['segundaLeitura']),
       salmo: LiturgySalmo.fromJson(json['salmo'] as Map<String, dynamic>),

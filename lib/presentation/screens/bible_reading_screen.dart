@@ -8,6 +8,8 @@ import '../../bloc/streak_bloc/streak_bloc.dart';
 import '../molecules/verse_card.dart';
 import '../organisms/bible_reader.dart';
 import '../../core/constants/app_constants.dart';
+import '../../core/di/injection.dart';
+import '../../data/repositories/purchase_repository.dart';
 
 class BibleReadingScreen extends StatefulWidget {
   const BibleReadingScreen({super.key});
@@ -32,8 +34,17 @@ class _BibleReadingScreenState extends State<BibleReadingScreen> {
     super.initState();
     context.read<BibleBloc>().add(const LoadBible());
     context.read<FavoritesBloc>().add(const LoadFavorites());
-    _loadBannerAd();
-    _loadInterstitialAd();
+    _checkPremiumAndLoadAds();
+  }
+
+  Future<void> _checkPremiumAndLoadAds() async {
+    final purchaseRepo = getIt<PurchaseRepository>();
+    final isPremium = await purchaseRepo.isPremium();
+    
+    if (!isPremium) {
+      _loadBannerAd();
+      _loadInterstitialAd();
+    }
   }
 
   void _loadBannerAd() {
@@ -81,7 +92,12 @@ class _BibleReadingScreenState extends State<BibleReadingScreen> {
     );
   }
 
-  void _showInterstitialAdIfNeeded() {
+  Future<void> _showInterstitialAdIfNeeded() async {
+    final purchaseRepo = getIt<PurchaseRepository>();
+    final isPremium = await purchaseRepo.isPremium();
+    
+    if (isPremium) return; // Don't show ads if premium
+    
     _chapterReadCount++;
     if (_chapterReadCount >= _chaptersForInterstitial && _interstitialAd != null) {
       _interstitialAd?.show();
@@ -98,18 +114,27 @@ class _BibleReadingScreenState extends State<BibleReadingScreen> {
   }
 
   void _onSearchChanged(String query) {
-    if (query.isNotEmpty && query.length >= 2) {
+    // Keep search field visible when user is typing
+    if (!_isSearching && query.isNotEmpty) {
       setState(() {
         _isSearching = true;
       });
+    }
+    
+    if (query.isNotEmpty && query.length >= 2) {
+      // Only search when query has at least 2 characters
       context.read<BibleBloc>().add(SearchVerses(query));
-    } else {
+    } else if (query.isEmpty) {
+      // Only clear search and hide field when query is completely empty
       setState(() {
         _isSearching = false;
       });
       if (_selectedBook == null && _selectedChapter == null) {
         context.read<BibleBloc>().add(const LoadBible());
       }
+      context.read<BibleBloc>().add(const ClearSearch());
+    } else {
+      // Query has 1 character - keep field visible but don't search yet
       context.read<BibleBloc>().add(const ClearSearch());
     }
   }
@@ -121,10 +146,24 @@ class _BibleReadingScreenState extends State<BibleReadingScreen> {
   }
 
   void _onSearchClear() {
+    _searchController.clear();
     setState(() {
       _isSearching = false;
     });
+    context.read<BibleBloc>().add(const ClearSearch());
+    if (_selectedBook == null && _selectedChapter == null) {
+      context.read<BibleBloc>().add(const LoadBible());
+    }
+  }
+  
+  void _onBackToBooks() {
+    setState(() {
+      _selectedBook = null;
+      _selectedChapter = null;
+      _isSearching = false;
+    });
     _searchController.clear();
+    context.read<BibleBloc>().add(const LoadBible());
     context.read<BibleBloc>().add(const ClearSearch());
   }
 
@@ -148,59 +187,14 @@ class _BibleReadingScreenState extends State<BibleReadingScreen> {
     context.read<StreakBloc>().add(const UpdateStreak());
   }
 
-  void _onBackToBooks() {
-    setState(() {
-      _selectedBook = null;
-      _selectedChapter = null;
-    });
-  }
-
   @override
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: _isSearching && _selectedBook == null
-            ? StatefulBuilder(
-                builder: (context, setState) {
-                  return Container(
-                    height: 40,
-                    decoration: BoxDecoration(
-                      color: Colors.white,
-                      borderRadius: BorderRadius.circular(20),
-                    ),
-                    child: TextField(
-                      controller: _searchController,
-                      autofocus: true,
-                      style: const TextStyle(color: Colors.black87),
-                      decoration: InputDecoration(
-                        hintText: 'Buscar na Bíblia...',
-                        hintStyle: TextStyle(color: Colors.grey[600]),
-                        prefixIcon: Icon(Icons.search, color: Theme.of(context).primaryColor),
-                        suffixIcon: _searchController.text.isNotEmpty
-                            ? IconButton(
-                                icon: Icon(Icons.clear, color: Colors.grey[600]),
-                                onPressed: () {
-                                  _onSearchClear();
-                                  setState(() {}); // Update the UI
-                                },
-                              )
-                            : null,
-                        border: InputBorder.none,
-                        contentPadding: const EdgeInsets.symmetric(horizontal: 16, vertical: 10),
-                      ),
-                      onChanged: (value) {
-                        _onSearchChanged(value);
-                        setState(() {}); // Update suffix icon
-                      },
-                      onSubmitted: _onSearchSubmitted,
-                    ),
-                  );
-                },
-              )
-            : Text(
-                _selectedBook ?? 'Bíblia Ave Maria',
-                style: const TextStyle(color: Colors.white),
-              ),
+        title: Text(
+          _selectedBook ?? 'Bíblia Ave Maria',
+          style: const TextStyle(color: Colors.white),
+        ),
         backgroundColor: Theme.of(context).primaryColor,
         iconTheme: const IconThemeData(color: Colors.white),
         leading: _selectedBook != null
@@ -208,61 +202,96 @@ class _BibleReadingScreenState extends State<BibleReadingScreen> {
                 icon: const Icon(Icons.arrow_back),
                 onPressed: _onBackToBooks,
               )
-            : _isSearching
-                ? IconButton(
-                    icon: const Icon(Icons.arrow_back),
-                    onPressed: () {
-                      setState(() {
-                        _isSearching = false;
-                        _searchController.clear();
-                        context.read<BibleBloc>().add(const ClearSearch());
-                      });
-                    },
-                  )
-                : null,
+            : null,
         actions: [
-          if (!_isSearching || _selectedBook != null)
-            IconButton(
-              icon: const Icon(Icons.search),
-              onPressed: () {
-                setState(() {
-                  _isSearching = !_isSearching;
-                  if (!_isSearching) {
-                    _searchController.clear();
-                    context.read<BibleBloc>().add(const ClearSearch());
-                  }
-                });
-              },
-            ),
-          if (!_isSearching || _selectedBook != null)
-            BlocBuilder<StreakBloc, StreakState>(
-              builder: (context, state) {
-                if (state is StreakLoaded) {
-                  return Padding(
-                    padding: const EdgeInsets.only(right: 16.0),
-                    child: Row(
-                      children: [
-                        const Icon(Icons.local_fire_department, color: Colors.orange),
-                        const SizedBox(width: 4),
-                        Text(
-                          '${state.streak}',
-                          style: const TextStyle(
-                            fontWeight: FontWeight.bold,
-                            fontSize: 16,
-                            color: Colors.white,
-                          ),
-                        ),
-                      ],
-                    ),
-                  );
+          IconButton(
+            icon: const Icon(Icons.search),
+            onPressed: () {
+              setState(() {
+                _isSearching = !_isSearching;
+                if (!_isSearching) {
+                  _searchController.clear();
+                  context.read<BibleBloc>().add(const ClearSearch());
                 }
-                return const SizedBox.shrink();
-              },
-            ),
+              });
+            },
+          ),
+          BlocBuilder<StreakBloc, StreakState>(
+            builder: (context, state) {
+              if (state is StreakLoaded) {
+                return Padding(
+                  padding: const EdgeInsets.only(right: 16.0),
+                  child: Row(
+                    children: [
+                      const Icon(Icons.local_fire_department, color: Colors.orange),
+                      const SizedBox(width: 4),
+                      Text(
+                        '${state.streak}',
+                        style: const TextStyle(
+                          fontWeight: FontWeight.bold,
+                          fontSize: 16,
+                          color: Colors.white,
+                        ),
+                      ),
+                    ],
+                  ),
+                );
+              }
+              return const SizedBox.shrink();
+            },
+          ),
         ],
       ),
       body: Column(
         children: [
+          // Search Bar
+          if (_isSearching && _selectedBook == null)
+            Padding(
+              padding: const EdgeInsets.all(AppConstants.defaultPadding),
+              child: Container(
+                decoration: BoxDecoration(
+                  color: Theme.of(context).primaryColor,
+                  borderRadius: BorderRadius.circular(AppConstants.borderRadius),
+                  boxShadow: [
+                    BoxShadow(
+                      color: Colors.black.withOpacity(0.1),
+                      blurRadius: 4,
+                      offset: const Offset(0, 2),
+                    ),
+                  ],
+                ),
+                child: StatefulBuilder(
+                  builder: (context, setState) {
+                    return TextField(
+                      controller: _searchController,
+                      autofocus: true,
+                      style: const TextStyle(color: Colors.white),
+                      decoration: InputDecoration(
+                        hintText: 'Buscar na Bíblia...',
+                        hintStyle: TextStyle(color: Colors.white.withOpacity(0.7)),
+                        prefixIcon: const Icon(Icons.search, color: Colors.white),
+                        suffixIcon: _searchController.text.isNotEmpty
+                            ? IconButton(
+                                icon: Icon(Icons.clear, color: Colors.white.withOpacity(0.7)),
+                                onPressed: () {
+                                  _onSearchClear();
+                                  setState(() {}); // Update UI
+                                },
+                              )
+                            : null,
+                        border: InputBorder.none,
+                        contentPadding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
+                      ),
+                      onChanged: (value) {
+                        _onSearchChanged(value);
+                        setState(() {}); // Update suffix icon
+                      },
+                      onSubmitted: _onSearchSubmitted,
+                    );
+                  },
+                ),
+              ),
+            ),
           // Content
           Expanded(
             child: BlocBuilder<BibleBloc, BibleState>(
@@ -342,14 +371,22 @@ class _BibleReadingScreenState extends State<BibleReadingScreen> {
               },
             ),
           ),
-          // Banner Ad
-          if (_isBannerAdReady && _bannerAd != null && _selectedBook == null)
-            Container(
-              alignment: Alignment.center,
-              width: _bannerAd!.size.width.toDouble(),
-              height: _bannerAd!.size.height.toDouble(),
-              child: AdWidget(ad: _bannerAd!),
-            ),
+          // Banner Ad (only show if not premium)
+          FutureBuilder<bool>(
+            future: getIt<PurchaseRepository>().isPremium(),
+            builder: (context, snapshot) {
+              final isPremium = snapshot.data ?? false;
+              if (isPremium || !_isBannerAdReady || _bannerAd == null || _selectedBook != null) {
+                return const SizedBox.shrink();
+              }
+              return Container(
+                alignment: Alignment.center,
+                width: _bannerAd!.size.width.toDouble(),
+                height: _bannerAd!.size.height.toDouble(),
+                child: AdWidget(ad: _bannerAd!),
+              );
+            },
+          ),
         ],
       ),
     );
@@ -619,6 +656,8 @@ class _BibleReadingScreenState extends State<BibleReadingScreen> {
             });
             _searchController.clear();
             context.read<BibleBloc>().add(const ClearSearch());
+            // Reload bible to show the selected book/chapter
+            context.read<BibleBloc>().add(const LoadBible());
           },
           onFavorite: () {
             context.read<FavoritesBloc>().add(

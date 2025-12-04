@@ -38,10 +38,12 @@ class ReadingPlanBloc extends Bloc<ReadingPlanEvent, ReadingPlanState> {
 
   Future<void> _onStartReadingPlan(StartReadingPlan event, Emitter<ReadingPlanState> emit) async {
     try {
-      await repository.addPlan(event.plan); // Or update to set started
-      // For now, let's assume adding it starts it or we need a specific method
-      // The repository has setCurrentDay, maybe that's how we track progress
-      await repository.setCurrentDay(event.plan.id, 1);
+      // Add the plan with the calculated currentDay
+      await repository.addPlan(event.plan);
+      // If plan has a currentDay, ensure it's set correctly
+      if (event.plan.currentDay != null && event.plan.currentDay! > 0) {
+        await repository.setCurrentDay(event.plan.id, event.plan.currentDay!);
+      }
       add(const LoadReadingPlans());
     } catch (e) {
       emit(ReadingPlanError(e.toString()));

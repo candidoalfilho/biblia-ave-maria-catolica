@@ -137,7 +137,7 @@ class ReflectionsRepository {
   Future<LiturgyResponse?> _fetchLiturgyFromAPI() async {
     try {
       final response = await http.get(
-        Uri.parse('https://liturgia.up.railway.app/'),
+        Uri.parse('https://liturgia.up.railway.app'),
       );
 
       if (response.statusCode == 200) {

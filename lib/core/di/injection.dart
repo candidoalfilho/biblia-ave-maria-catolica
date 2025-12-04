@@ -5,6 +5,7 @@ import '../../data/repositories/favorites_repository.dart';
 import '../../data/repositories/reading_plans_repository.dart';
 import '../../data/repositories/reflections_repository.dart';
 import '../../data/repositories/settings_repository.dart';
+import '../../data/repositories/purchase_repository.dart';
 import 'injection.config.dart';
 
 import '../../data/models/bible_models.dart';

@@ -1,10 +1,11 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:in_app_purchase/in_app_purchase.dart';
 import '../../bloc/theme_bloc/theme_bloc.dart';
 import '../../bloc/tts_bloc/tts_bloc.dart';
 import '../../core/constants/app_constants.dart';
 import '../../core/di/injection.dart';
-import '../../data/repositories/settings_repository.dart';
+import '../../data/repositories/purchase_repository.dart';
 
 class SettingsScreen extends StatefulWidget {
   const SettingsScreen({super.key});
@@ -371,9 +372,9 @@ class _SettingsScreenState extends State<SettingsScreen> {
   }
 
   Widget _buildPremiumOption() {
-    final settingsRepo = getIt<SettingsRepository>();
+    final purchaseRepo = getIt<PurchaseRepository>();
     return FutureBuilder<bool>(
-      future: settingsRepo.isPremium(),
+      future: purchaseRepo.isPremium(),
       builder: (context, snapshot) {
         final isPremium = snapshot.data ?? false;
         
@@ -401,55 +402,171 @@ class _SettingsScreenState extends State<SettingsScreen> {
                 fontSize: 18,
               ),
             ),
-            subtitle: Text(
-              isPremium
-                  ? 'Você está aproveitando todos os benefícios premium'
-                  : 'Desbloqueie a versão premium por R\$ ${AppConstants.premiumPrice.toStringAsFixed(2)}',
-              style: TextStyle(
-                color: Colors.white.withOpacity(0.9),
-                fontSize: 14,
-              ),
+            subtitle: FutureBuilder<List<ProductDetails>>(
+              future: purchaseRepo.getProducts(),
+              builder: (context, productSnapshot) {
+                String priceText = 'R\$ ${AppConstants.premiumPrice.toStringAsFixed(2)}';
+                if (productSnapshot.hasData && productSnapshot.data!.isNotEmpty) {
+                  final product = productSnapshot.data!.first;
+                  priceText = product.price;
+                }
+                
+                return Text(
+                  isPremium
+                      ? 'Você está aproveitando todos os benefícios premium'
+                      : 'Desbloqueie a versão premium por $priceText',
+                  style: TextStyle(
+                    color: Colors.white.withOpacity(0.9),
+                    fontSize: 14,
+                  ),
+                );
+              },
             ),
             trailing: isPremium
                 ? const Icon(Icons.check_circle, color: Colors.white)
                 : const Icon(Icons.arrow_forward_ios, color: Colors.white, size: 20),
             onTap: isPremium
                 ? null
-                : () {
-                    // TODO: Implement in-app purchase flow
-                    // For now, show a dialog
+                : () async {
+                    // Show loading dialog
                     showDialog(
                       context: context,
-                      builder: (context) => AlertDialog(
-                        title: const Text('Versão Premium'),
-                        content: Text(
-                          'A versão premium remove todos os anúncios e oferece recursos adicionais.\n\n'
-                          'Preço: R\$ ${AppConstants.premiumPrice.toStringAsFixed(2)}',
-                        ),
-                        actions: [
-                          TextButton(
-                            onPressed: () => Navigator.pop(context),
-                            child: const Text('Cancelar'),
-                          ),
-                          ElevatedButton(
-                            onPressed: () {
-                              // TODO: Implement actual purchase flow
-                              // For now, just show a message
-                              Navigator.pop(context);
-                              ScaffoldMessenger.of(context).showSnackBar(
-                                const SnackBar(
-                                  content: Text('Funcionalidade de compra será implementada em breve'),
-                                ),
-                              );
-                            },
-                            style: ElevatedButton.styleFrom(
-                              backgroundColor: Theme.of(context).primaryColor,
-                            ),
-                            child: const Text('Comprar'),
-                          ),
-                        ],
+                      barrierDismissible: false,
+                      builder: (context) => const Center(
+                        child: CircularProgressIndicator(),
                       ),
                     );
+                    
+                    try {
+                      final products = await purchaseRepo.getProducts();
+                      Navigator.pop(context); // Close loading
+                      
+                      if (products.isEmpty) {
+                        // Check if InAppPurchase is available                        
+                        String message = 'Produto não disponível no momento.';
+    
+                        ScaffoldMessenger.of(context).showSnackBar(
+                          SnackBar(
+                            content: Text(message),
+                            backgroundColor: Colors.red,
+                            duration: const Duration(seconds: 5),
+                          ),
+                        );
+                        return;
+                      }
+                      
+                      final product = products.first;
+                      
+                      // Show purchase dialog
+                      showDialog(
+                        context: context,
+                        builder: (context) => AlertDialog(
+                          title: const Text('Versão Premium'),
+                          content: Text(
+                            'A versão premium remove todos os anúncios e oferece recursos adicionais.\n\n'
+                            'Preço: ${product.price}',
+                          ),
+                          actions: [
+                            TextButton(
+                              onPressed: () => Navigator.pop(context),
+                              child: const Text('Cancelar'),
+                            ),
+                            ElevatedButton(
+                              onPressed: () async {
+                                Navigator.pop(context);
+                                
+                                // Show loading
+                                showDialog(
+                                  context: context,
+                                  barrierDismissible: false,
+                                  builder: (context) => const Center(
+                                    child: CircularProgressIndicator(),
+                                  ),
+                                );
+                                
+                                try {
+                                  final success = await purchaseRepo.buyProduct(product);
+                                  Navigator.pop(context); // Close loading
+                                  
+                                  if (success) {
+                                    ScaffoldMessenger.of(context).showSnackBar(
+                                      const SnackBar(
+                                        content: Text('Compra iniciada! Aguarde a confirmação.'),
+                                        backgroundColor: Colors.green,
+                                      ),
+                                    );
+                                    // Refresh the UI
+                                    setState(() {});
+                                  } else {
+                                    ScaffoldMessenger.of(context).showSnackBar(
+                                      const SnackBar(
+                                        content: Text('Não foi possível iniciar a compra. Tente novamente.'),
+                                        backgroundColor: Colors.red,
+                                      ),
+                                    );
+                                  }
+                                } catch (e) {
+                                  Navigator.pop(context);
+                                  ScaffoldMessenger.of(context).showSnackBar(
+                                    SnackBar(
+                                      content: Text('Erro: $e'),
+                                      backgroundColor: Colors.red,
+                                    ),
+                                  );
+                                }
+                              },
+                              style: ElevatedButton.styleFrom(
+                                backgroundColor: Theme.of(context).primaryColor,
+                              ),
+                              child: const Text('Comprar'),
+                            ),
+                            TextButton(
+                              onPressed: () async {
+                                Navigator.pop(context);
+                                
+                                showDialog(
+                                  context: context,
+                                  barrierDismissible: false,
+                                  builder: (context) => const Center(
+                                    child: CircularProgressIndicator(),
+                                  ),
+                                );
+                                
+                                try {
+                                  await purchaseRepo.restorePurchases();
+                                  Navigator.pop(context);
+                                  
+                                  ScaffoldMessenger.of(context).showSnackBar(
+                                    const SnackBar(
+                                      content: Text('Compras restauradas!'),
+                                      backgroundColor: Colors.green,
+                                    ),
+                                  );
+                                  setState(() {});
+                                } catch (e) {
+                                  Navigator.pop(context);
+                                  ScaffoldMessenger.of(context).showSnackBar(
+                                    SnackBar(
+                                      content: Text('Erro ao restaurar: $e'),
+                                      backgroundColor: Colors.red,
+                                    ),
+                                  );
+                                }
+                              },
+                              child: const Text('Restaurar Compras'),
+                            ),
+                          ],
+                        ),
+                      );
+                    } catch (e) {
+                      Navigator.pop(context);
+                      ScaffoldMessenger.of(context).showSnackBar(
+                        SnackBar(
+                          content: Text('Erro: $e'),
+                          backgroundColor: Colors.red,
+                        ),
+                      );
+                    }
                   },
           ),
         );
