@@ -2,7 +2,7 @@ name: biblia_ave_maria_catolica
 description: "Bíblia Ave Maria Católica - Aplicativo de leitura da Bíblia Sagrada offline"
 publish_to: 'none'
 
-version: 1.0.1+2
+version: 1.0.2+3
 
 environment:
   sdk: ^3.9.2
