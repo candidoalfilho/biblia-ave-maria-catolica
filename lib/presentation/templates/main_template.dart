@@ -80,7 +80,7 @@ class _MainTemplateState extends State<MainTemplate> {
               ),
               BottomNavigationBarItem(
                 icon: Icon(Icons.lightbulb),
-                label: 'Reflexão',
+                label: 'Salmo',
               ),
               BottomNavigationBarItem(
                 icon: Icon(Icons.settings),

@@ -117,6 +117,81 @@ class DailyReflection with _$DailyReflection {
   factory DailyReflection.fromJson(Map<String, dynamic> json) => _$DailyReflectionFromJson(json);
 }
 
+// Model for Liturgy API response
+@freezed
+class LiturgyResponse with _$LiturgyResponse {
+  const factory LiturgyResponse({
+    required String data,
+    required String liturgia,
+    required String cor,
+    required String dia,
+    required String ofertas,
+    required String comunhao,
+    required LiturgyReading primeiraLeitura,
+    LiturgyReading? segundaLeitura,
+    required LiturgySalmo salmo,
+    required LiturgyReading evangelho,
+    required LiturgyAntifonas antifonas,
+  }) = _LiturgyResponse;
+
+  factory LiturgyResponse.fromJson(Map<String, dynamic> json) {
+    return LiturgyResponse(
+      data: json['data'] as String,
+      liturgia: json['liturgia'] as String,
+      cor: json['cor'] as String,
+      dia: json['dia'] as String,
+      ofertas: json['ofertas'] as String,
+      comunhao: json['comunhao'] as String,
+      primeiraLeitura: LiturgyReading.fromJson(json['primeiraLeitura'] as Map<String, dynamic>),
+      segundaLeitura: _segundaLeituraFromJson(json['segundaLeitura']),
+      salmo: LiturgySalmo.fromJson(json['salmo'] as Map<String, dynamic>),
+      evangelho: LiturgyReading.fromJson(json['evangelho'] as Map<String, dynamic>),
+      antifonas: LiturgyAntifonas.fromJson(json['antifonas'] as Map<String, dynamic>),
+    );
+  }
+}
+
+LiturgyReading? _segundaLeituraFromJson(dynamic json) {
+  if (json == null) return null;
+  if (json is String) return null; // "Não há segunda leitura hoje!"
+  if (json is Map<String, dynamic>) {
+    return LiturgyReading.fromJson(json);
+  }
+  return null;
+}
+
+@freezed
+class LiturgyReading with _$LiturgyReading {
+  const factory LiturgyReading({
+    required String referencia,
+    required String titulo,
+    required String texto,
+  }) = _LiturgyReading;
+
+  factory LiturgyReading.fromJson(Map<String, dynamic> json) => _$LiturgyReadingFromJson(json);
+}
+
+@freezed
+class LiturgySalmo with _$LiturgySalmo {
+  const factory LiturgySalmo({
+    required String referencia,
+    required String refrao,
+    required String texto,
+  }) = _LiturgySalmo;
+
+  factory LiturgySalmo.fromJson(Map<String, dynamic> json) => _$LiturgySalmoFromJson(json);
+}
+
+@freezed
+class LiturgyAntifonas with _$LiturgyAntifonas {
+  const factory LiturgyAntifonas({
+    required String entrada,
+    required String comunhao,
+  }) = _LiturgyAntifonas;
+
+  factory LiturgyAntifonas.fromJson(Map<String, dynamic> json) => _$LiturgyAntifonasFromJson(json);
+}
+
 enum HighlightColor {
   yellow,
   green,

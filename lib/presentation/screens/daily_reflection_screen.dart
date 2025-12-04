@@ -20,7 +20,7 @@ class _DailyReflectionScreenState extends State<DailyReflectionScreen> {
     return Scaffold(
       extendBodyBehindAppBar: true,
       appBar: AppBar(
-        title: const Text('Reflexão do Dia'),
+        title: const Text('Salmo do Dia'),
         backgroundColor: Colors.transparent,
         elevation: 0,
         actions: [
@@ -156,7 +156,7 @@ class _DailyReflectionScreenState extends State<DailyReflectionScreen> {
             ),
             child: Center(
               child: Icon(
-                Icons.auto_awesome,
+                Icons.music_note,
                 size: 48,
                 color: Colors.white.withOpacity(0.8),
               ),
@@ -197,9 +197,27 @@ class _DailyReflectionScreenState extends State<DailyReflectionScreen> {
                           letterSpacing: 1.0,
                         ),
                       ),
-                      const SizedBox(height: 8),
+                      const SizedBox(height: 12),
+                      // Check if reflection contains refrão (starts with refrão)
+                      if (reflection.reflection.contains('\n\n'))
+                        ...[
+                          Text(
+                            reflection.reflection.split('\n\n').first,
+                            style: GoogleFonts.playfairDisplay(
+                              fontSize: 18,
+                              fontWeight: FontWeight.bold,
+                              fontStyle: FontStyle.italic,
+                              height: 1.6,
+                              color: Theme.of(context).primaryColor,
+                            ),
+                            textAlign: TextAlign.center,
+                          ),
+                          const SizedBox(height: 12),
+                          const Divider(),
+                          const SizedBox(height: 12),
+                        ],
                       Text(
-                        '"${reflection.text}"',
+                        reflection.text,
                         style: GoogleFonts.lora(
                           fontSize: 16,
                           fontStyle: FontStyle.italic,
@@ -210,15 +228,29 @@ class _DailyReflectionScreenState extends State<DailyReflectionScreen> {
                     ],
                   ),
                 ),
-                const SizedBox(height: 24),
-                Text(
-                  reflection.reflection,
-                  style: GoogleFonts.sourceSans3(
-                    fontSize: 16,
-                    height: 1.8,
-                    color: Colors.black87.withOpacity(0.8),
-                  ),
-                ),
+                // Show reflection (prayer) if it exists and is different from refrão
+                if (reflection.reflection.contains('\n\n') && reflection.reflection.split('\n\n').length > 1)
+                  ...[
+                    const SizedBox(height: 24),
+                    Text(
+                      'Oração do Dia',
+                      style: GoogleFonts.outfit(
+                        fontSize: 14,
+                        fontWeight: FontWeight.bold,
+                        color: Theme.of(context).primaryColor,
+                        letterSpacing: 1.0,
+                      ),
+                    ),
+                    const SizedBox(height: 8),
+                    Text(
+                      reflection.reflection.split('\n\n').skip(1).join('\n\n'),
+                      style: GoogleFonts.sourceSans3(
+                        fontSize: 16,
+                        height: 1.8,
+                        color: Colors.black87.withOpacity(0.8),
+                      ),
+                    ),
+                  ],
                 const SizedBox(height: 32),
                 Row(
                   children: [

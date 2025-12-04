@@ -4,12 +4,9 @@ import 'package:google_mobile_ads/google_mobile_ads.dart';
 import 'package:google_fonts/google_fonts.dart';
 import '../../bloc/bible_bloc/bible_bloc.dart';
 import '../../bloc/favorites_bloc/favorites_bloc.dart';
-import '../../bloc/tts_bloc/tts_bloc.dart';
 import '../../bloc/streak_bloc/streak_bloc.dart';
-import '../molecules/search_bar.dart' as custom;
 import '../molecules/verse_card.dart';
 import '../organisms/bible_reader.dart';
-import '../organisms/book_selector.dart';
 import '../../core/constants/app_constants.dart';
 
 class BibleReadingScreen extends StatefulWidget {
@@ -162,43 +159,106 @@ class _BibleReadingScreenState extends State<BibleReadingScreen> {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: Text(
-          _selectedBook ?? 'Bíblia Ave Maria',
-          style: const TextStyle(color: Colors.white),
-        ),
+        title: _isSearching && _selectedBook == null
+            ? StatefulBuilder(
+                builder: (context, setState) {
+                  return Container(
+                    height: 40,
+                    decoration: BoxDecoration(
+                      color: Colors.white,
+                      borderRadius: BorderRadius.circular(20),
+                    ),
+                    child: TextField(
+                      controller: _searchController,
+                      autofocus: true,
+                      style: const TextStyle(color: Colors.black87),
+                      decoration: InputDecoration(
+                        hintText: 'Buscar na Bíblia...',
+                        hintStyle: TextStyle(color: Colors.grey[600]),
+                        prefixIcon: Icon(Icons.search, color: Theme.of(context).primaryColor),
+                        suffixIcon: _searchController.text.isNotEmpty
+                            ? IconButton(
+                                icon: Icon(Icons.clear, color: Colors.grey[600]),
+                                onPressed: () {
+                                  _onSearchClear();
+                                  setState(() {}); // Update the UI
+                                },
+                              )
+                            : null,
+                        border: InputBorder.none,
+                        contentPadding: const EdgeInsets.symmetric(horizontal: 16, vertical: 10),
+                      ),
+                      onChanged: (value) {
+                        _onSearchChanged(value);
+                        setState(() {}); // Update suffix icon
+                      },
+                      onSubmitted: _onSearchSubmitted,
+                    ),
+                  );
+                },
+              )
+            : Text(
+                _selectedBook ?? 'Bíblia Ave Maria',
+                style: const TextStyle(color: Colors.white),
+              ),
         backgroundColor: Theme.of(context).primaryColor,
-        iconTheme: const IconThemeData(color: Colors.black),
+        iconTheme: const IconThemeData(color: Colors.white),
         leading: _selectedBook != null
             ? IconButton(
                 icon: const Icon(Icons.arrow_back),
                 onPressed: _onBackToBooks,
               )
-            : null,
+            : _isSearching
+                ? IconButton(
+                    icon: const Icon(Icons.arrow_back),
+                    onPressed: () {
+                      setState(() {
+                        _isSearching = false;
+                        _searchController.clear();
+                        context.read<BibleBloc>().add(const ClearSearch());
+                      });
+                    },
+                  )
+                : null,
         actions: [
-          BlocBuilder<StreakBloc, StreakState>(
-            builder: (context, state) {
-              if (state is StreakLoaded) {
-                return Padding(
-                  padding: const EdgeInsets.only(right: 16.0),
-                  child: Row(
-                    children: [
-                      const Icon(Icons.local_fire_department, color: Colors.orange),
-                      const SizedBox(width: 4),
-                      Text(
-                        '${state.streak}',
-                        style: const TextStyle(
-                          fontWeight: FontWeight.bold,
-                          fontSize: 16,
-                          color: Colors.white,
+          if (!_isSearching || _selectedBook != null)
+            IconButton(
+              icon: const Icon(Icons.search),
+              onPressed: () {
+                setState(() {
+                  _isSearching = !_isSearching;
+                  if (!_isSearching) {
+                    _searchController.clear();
+                    context.read<BibleBloc>().add(const ClearSearch());
+                  }
+                });
+              },
+            ),
+          if (!_isSearching || _selectedBook != null)
+            BlocBuilder<StreakBloc, StreakState>(
+              builder: (context, state) {
+                if (state is StreakLoaded) {
+                  return Padding(
+                    padding: const EdgeInsets.only(right: 16.0),
+                    child: Row(
+                      children: [
+                        const Icon(Icons.local_fire_department, color: Colors.orange),
+                        const SizedBox(width: 4),
+                        Text(
+                          '${state.streak}',
+                          style: const TextStyle(
+                            fontWeight: FontWeight.bold,
+                            fontSize: 16,
+                            color: Colors.white,
+                          ),
                         ),
-                      ),
-                    ],
-                  ),
-                );
-              }
-              return const SizedBox.shrink();
-            },
-          ),
+                      ],
+                    ),
+                  );
+                }
+                return const SizedBox.shrink();
+              },
+            ),
         ],
       ),
       body: Column(

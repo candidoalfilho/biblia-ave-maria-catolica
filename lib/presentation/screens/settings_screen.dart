@@ -3,6 +3,8 @@ import 'package:flutter_bloc/flutter_bloc.dart';
 import '../../bloc/theme_bloc/theme_bloc.dart';
 import '../../bloc/tts_bloc/tts_bloc.dart';
 import '../../core/constants/app_constants.dart';
+import '../../core/di/injection.dart';
+import '../../data/repositories/settings_repository.dart';
 
 class SettingsScreen extends StatefulWidget {
   const SettingsScreen({super.key});
@@ -77,6 +79,15 @@ class _SettingsScreenState extends State<SettingsScreen> {
           ),
           const SizedBox(height: AppConstants.largePadding),
           */
+          // Premium Section
+          _buildSection(
+            title: 'Premium',
+            icon: Icons.star,
+            children: [
+              _buildPremiumOption(),
+            ],
+          ),
+          const SizedBox(height: AppConstants.largePadding),
           // About Section
           _buildSection(
             title: 'Sobre',
@@ -356,6 +367,93 @@ class _SettingsScreenState extends State<SettingsScreen> {
           },
         ),
       ],
+    );
+  }
+
+  Widget _buildPremiumOption() {
+    final settingsRepo = getIt<SettingsRepository>();
+    return FutureBuilder<bool>(
+      future: settingsRepo.isPremium(),
+      builder: (context, snapshot) {
+        final isPremium = snapshot.data ?? false;
+        
+        return Container(
+          decoration: BoxDecoration(
+            gradient: LinearGradient(
+              colors: [
+                Theme.of(context).primaryColor,
+                Theme.of(context).primaryColor.withOpacity(0.8),
+              ],
+            ),
+            borderRadius: BorderRadius.circular(12),
+          ),
+          child: ListTile(
+            leading: Icon(
+              isPremium ? Icons.star : Icons.star_border,
+              color: Colors.white,
+              size: 32,
+            ),
+            title: Text(
+              isPremium ? 'Versão Premium Ativa' : 'Remover Anúncios',
+              style: const TextStyle(
+                color: Colors.white,
+                fontWeight: FontWeight.bold,
+                fontSize: 18,
+              ),
+            ),
+            subtitle: Text(
+              isPremium
+                  ? 'Você está aproveitando todos os benefícios premium'
+                  : 'Desbloqueie a versão premium por R\$ ${AppConstants.premiumPrice.toStringAsFixed(2)}',
+              style: TextStyle(
+                color: Colors.white.withOpacity(0.9),
+                fontSize: 14,
+              ),
+            ),
+            trailing: isPremium
+                ? const Icon(Icons.check_circle, color: Colors.white)
+                : const Icon(Icons.arrow_forward_ios, color: Colors.white, size: 20),
+            onTap: isPremium
+                ? null
+                : () {
+                    // TODO: Implement in-app purchase flow
+                    // For now, show a dialog
+                    showDialog(
+                      context: context,
+                      builder: (context) => AlertDialog(
+                        title: const Text('Versão Premium'),
+                        content: Text(
+                          'A versão premium remove todos os anúncios e oferece recursos adicionais.\n\n'
+                          'Preço: R\$ ${AppConstants.premiumPrice.toStringAsFixed(2)}',
+                        ),
+                        actions: [
+                          TextButton(
+                            onPressed: () => Navigator.pop(context),
+                            child: const Text('Cancelar'),
+                          ),
+                          ElevatedButton(
+                            onPressed: () {
+                              // TODO: Implement actual purchase flow
+                              // For now, just show a message
+                              Navigator.pop(context);
+                              ScaffoldMessenger.of(context).showSnackBar(
+                                const SnackBar(
+                                  content: Text('Funcionalidade de compra será implementada em breve'),
+                                ),
+                              );
+                            },
+                            style: ElevatedButton.styleFrom(
+                              backgroundColor: Theme.of(context).primaryColor,
+                            ),
+                            child: const Text('Comprar'),
+                          ),
+                        ],
+                      ),
+                    );
+                  },
+          ),
+        );
+      },
     );
   }
 

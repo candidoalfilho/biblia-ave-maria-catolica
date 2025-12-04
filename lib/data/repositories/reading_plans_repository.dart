@@ -63,7 +63,7 @@ class ReadingPlansRepository {
         durationDays: 90,
         days: [], // Populate with actual days logic if needed
         createdAt: DateTime.now(),
-        currentDay: 1,
+        currentDay: null, // Not started - will be null for recommended plans
       ),
       ReadingPlan(
         id: '2',
@@ -72,7 +72,7 @@ class ReadingPlansRepository {
         durationDays: 30,
         days: [],
         createdAt: DateTime.now(),
-        currentDay: 1,
+        currentDay: null, // Not started
       ),
       ReadingPlan(
         id: '3',
@@ -81,7 +81,7 @@ class ReadingPlansRepository {
         durationDays: 180,
         days: [],
         createdAt: DateTime.now(),
-        currentDay: 1,
+        currentDay: null, // Not started
       ),
     ];
 

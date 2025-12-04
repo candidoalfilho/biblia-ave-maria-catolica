@@ -1,6 +1,7 @@
 import 'dart:convert';
 import 'package:hive/hive.dart';
 import 'package:injectable/injectable.dart';
+import 'package:http/http.dart' as http;
 import '../models/bible_models.dart';
 import '../../domain/entities/bible_entity.dart';
 
@@ -72,6 +73,19 @@ class ReflectionsRepository {
   }
 
   Future<DailyReflectionEntity?> getReflectionByDate(DateTime date) async {
+    try {
+      // Try to fetch from API first
+      final liturgy = await _fetchLiturgyFromAPI();
+      if (liturgy != null) {
+        // Convert liturgy salmo to DailyReflectionEntity
+        return _convertLiturgyToReflection(liturgy, date);
+      }
+    } catch (e) {
+      print('Error fetching liturgy from API: $e');
+      // Fallback to local storage if API fails
+    }
+
+    // Fallback to local storage
     if (_box.isEmpty) {
       await _seedReflections();
     }
@@ -118,6 +132,42 @@ class ReflectionsRepository {
       }
       return null;
     }
+  }
+
+  Future<LiturgyResponse?> _fetchLiturgyFromAPI() async {
+    try {
+      final response = await http.get(
+        Uri.parse('https://liturgia.up.railway.app/'),
+      );
+
+      if (response.statusCode == 200) {
+        final jsonData = jsonDecode(response.body) as Map<String, dynamic>;
+        return LiturgyResponse.fromJson(jsonData);
+      }
+      return null;
+    } catch (e) {
+      print('Error fetching liturgy: $e');
+      return null;
+    }
+  }
+
+  DailyReflectionEntity _convertLiturgyToReflection(LiturgyResponse liturgy, DateTime date) {
+    // Extract salmo number from referencia (e.g., "Sl 33" -> 33)
+    final salmoMatch = RegExp(r'Sl\s*(\d+)').firstMatch(liturgy.salmo.referencia);
+    final salmoNumber = salmoMatch != null ? int.tryParse(salmoMatch.group(1) ?? '1') ?? 1 : 1;
+
+    // Create a reflection from the salmo
+    return DailyReflectionEntity(
+      id: 'liturgy_${date.millisecondsSinceEpoch}',
+      title: 'Salmo ${salmoNumber}',
+      verse: liturgy.salmo.referencia,
+      text: liturgy.salmo.texto,
+      reflection: '${liturgy.salmo.refrao}\n\n${liturgy.dia}',
+      bookName: 'Salmos',
+      chapter: salmoNumber,
+      verseNumber: 1,
+      date: date,
+    );
   }
 
   Future<void> _seedReflections() async {

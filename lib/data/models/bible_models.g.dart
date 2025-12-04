@@ -186,3 +186,46 @@ Map<String, dynamic> _$$DailyReflectionImplToJson(
       'verseNumber': instance.verseNumber,
       'date': instance.date.toIso8601String(),
     };
+
+_$LiturgyReadingImpl _$$LiturgyReadingImplFromJson(Map<String, dynamic> json) =>
+    _$LiturgyReadingImpl(
+      referencia: json['referencia'] as String,
+      titulo: json['titulo'] as String,
+      texto: json['texto'] as String,
+    );
+
+Map<String, dynamic> _$$LiturgyReadingImplToJson(
+        _$LiturgyReadingImpl instance) =>
+    <String, dynamic>{
+      'referencia': instance.referencia,
+      'titulo': instance.titulo,
+      'texto': instance.texto,
+    };
+
+_$LiturgySalmoImpl _$$LiturgySalmoImplFromJson(Map<String, dynamic> json) =>
+    _$LiturgySalmoImpl(
+      referencia: json['referencia'] as String,
+      refrao: json['refrao'] as String,
+      texto: json['texto'] as String,
+    );
+
+Map<String, dynamic> _$$LiturgySalmoImplToJson(_$LiturgySalmoImpl instance) =>
+    <String, dynamic>{
+      'referencia': instance.referencia,
+      'refrao': instance.refrao,
+      'texto': instance.texto,
+    };
+
+_$LiturgyAntifonasImpl _$$LiturgyAntifonasImplFromJson(
+        Map<String, dynamic> json) =>
+    _$LiturgyAntifonasImpl(
+      entrada: json['entrada'] as String,
+      comunhao: json['comunhao'] as String,
+    );
+
+Map<String, dynamic> _$$LiturgyAntifonasImplToJson(
+        _$LiturgyAntifonasImpl instance) =>
+    <String, dynamic>{
+      'entrada': instance.entrada,
+      'comunhao': instance.comunhao,
+    };

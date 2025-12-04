@@ -5,6 +5,7 @@ import '../../core/constants/app_constants.dart';
 import '../../bloc/reading_plan_bloc/reading_plan_bloc.dart';
 import '../../domain/entities/bible_entity.dart';
 import 'create_reading_plan_screen.dart';
+import 'reading_plan_detail_screen.dart';
 
 class ReadingPlansScreen extends StatefulWidget {
   const ReadingPlansScreen({super.key});
@@ -91,70 +92,94 @@ class _ReadingPlansScreenState extends State<ReadingPlansScreen> {
   Widget _buildActivePlanCard(ReadingPlanEntity plan) {
     final progress = (plan.currentDay ?? 0) / plan.durationDays;
     
-    return Container(
-      decoration: BoxDecoration(
-        color: Colors.white,
+    return Material(
+      color: Colors.white,
+      borderRadius: BorderRadius.circular(16),
+      elevation: 0, // No default elevation from Material
+      child: InkWell(
+        onTap: () {
+          Navigator.push(
+            context,
+            MaterialPageRoute(
+              builder: (context) => ReadingPlanDetailScreen(
+                plan: plan,
+                isFeatured: false,
+              ),
+            ),
+          );
+        },
         borderRadius: BorderRadius.circular(16),
-        boxShadow: [
-          BoxShadow(
-            color: Colors.black.withOpacity(0.05),
-            blurRadius: 10,
-            offset: const Offset(0, 4),
+        child: Container(
+          decoration: BoxDecoration(
+            color: Colors.white,
+            borderRadius: BorderRadius.circular(16),
+            boxShadow: [
+              BoxShadow(
+                color: Colors.black.withOpacity(0.05),
+                blurRadius: 10,
+                offset: const Offset(0, 4),
+              ),
+            ],
           ),
-        ],
-      ),
-      child: Padding(
-        padding: const EdgeInsets.all(20),
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            Row(
+          child: Padding(
+            padding: const EdgeInsets.all(20),
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                Container(
-                  padding: const EdgeInsets.all(10),
-                  decoration: BoxDecoration(
-                    color: Theme.of(context).primaryColor.withOpacity(0.1),
-                    borderRadius: BorderRadius.circular(12),
-                  ),
-                  child: Icon(
-                    Icons.bookmark,
-                    color: Theme.of(context).primaryColor,
-                  ),
+                Row(
+                  children: [
+                    Container(
+                      width: 50,
+                      height: 50,
+                      decoration: BoxDecoration(
+                        color: Theme.of(context).primaryColor.withOpacity(0.1),
+                        borderRadius: BorderRadius.circular(12),
+                      ),
+                      child: Icon(
+                        Icons.bookmark,
+                        color: Theme.of(context).primaryColor,
+                        size: 28,
+                      ),
+                    ),
+                    const SizedBox(width: 16),
+                    Expanded(
+                      child: Column(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                          Text(
+                            plan.name,
+                            style: GoogleFonts.playfairDisplay(
+                              fontSize: 18,
+                              fontWeight: FontWeight.bold,
+                              color: Colors.black87,
+                            ),
+                          ),
+                          const SizedBox(height: 4),
+                          Text(
+                            'Dia ${plan.currentDay} de ${plan.durationDays}',
+                            style: GoogleFonts.sourceSans3(
+                              fontSize: 14,
+                              color: Colors.grey[600],
+                            ),
+                          ),
+                        ],
+                      ),
+                    ),
+                  ],
                 ),
-                const SizedBox(width: 16),
-                Expanded(
-                  child: Column(
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    children: [
-                      Text(
-                        plan.name,
-                        style: GoogleFonts.playfairDisplay(
-                          fontSize: 18,
-                          fontWeight: FontWeight.bold,
-                        ),
-                      ),
-                      Text(
-                        'Dia ${plan.currentDay} de ${plan.durationDays}',
-                        style: GoogleFonts.sourceSans3(
-                          color: Colors.grey[600],
-                        ),
-                      ),
-                    ],
+                const SizedBox(height: 16),
+                ClipRRect(
+                  borderRadius: BorderRadius.circular(4),
+                  child: LinearProgressIndicator(
+                    value: progress,
+                    backgroundColor: Colors.grey[100],
+                    valueColor: AlwaysStoppedAnimation(Theme.of(context).primaryColor),
+                    minHeight: 6,
                   ),
                 ),
               ],
             ),
-            const SizedBox(height: 20),
-            ClipRRect(
-              borderRadius: BorderRadius.circular(4),
-              child: LinearProgressIndicator(
-                value: progress,
-                backgroundColor: Colors.grey[100],
-                valueColor: AlwaysStoppedAnimation(Theme.of(context).primaryColor),
-                minHeight: 6,
-              ),
-            ),
-          ],
+          ),
         ),
       ),
     );
@@ -197,17 +222,12 @@ class _ReadingPlansScreenState extends State<ReadingPlansScreen> {
         color: Colors.transparent,
         child: InkWell(
           onTap: () {
-            context.read<ReadingPlanBloc>().add(StartReadingPlan(plan));
-            ScaffoldMessenger.of(context).showSnackBar(
-              SnackBar(
-                content: Text('Plano "${plan.name}" iniciado!'),
-                backgroundColor: Theme.of(context).primaryColor,
-                behavior: SnackBarBehavior.floating,
-                duration: const Duration(seconds: 2),
-                action: SnackBarAction(
-                  label: 'OK',
-                  textColor: Colors.white,
-                  onPressed: () {},
+            Navigator.push(
+              context,
+              MaterialPageRoute(
+                builder: (context) => ReadingPlanDetailScreen(
+                  plan: plan,
+                  isFeatured: true,
                 ),
               ),
             );

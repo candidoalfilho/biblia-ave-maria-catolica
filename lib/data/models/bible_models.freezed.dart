@@ -1971,3 +1971,907 @@ abstract class _DailyReflection implements DailyReflection {
   _$$DailyReflectionImplCopyWith<_$DailyReflectionImpl> get copyWith =>
       throw _privateConstructorUsedError;
 }
+
+/// @nodoc
+mixin _$LiturgyResponse {
+  String get data => throw _privateConstructorUsedError;
+  String get liturgia => throw _privateConstructorUsedError;
+  String get cor => throw _privateConstructorUsedError;
+  String get dia => throw _privateConstructorUsedError;
+  String get ofertas => throw _privateConstructorUsedError;
+  String get comunhao => throw _privateConstructorUsedError;
+  LiturgyReading get primeiraLeitura => throw _privateConstructorUsedError;
+  LiturgyReading? get segundaLeitura => throw _privateConstructorUsedError;
+  LiturgySalmo get salmo => throw _privateConstructorUsedError;
+  LiturgyReading get evangelho => throw _privateConstructorUsedError;
+  LiturgyAntifonas get antifonas => throw _privateConstructorUsedError;
+
+  @JsonKey(ignore: true)
+  $LiturgyResponseCopyWith<LiturgyResponse> get copyWith =>
+      throw _privateConstructorUsedError;
+}
+
+/// @nodoc
+abstract class $LiturgyResponseCopyWith<$Res> {
+  factory $LiturgyResponseCopyWith(
+          LiturgyResponse value, $Res Function(LiturgyResponse) then) =
+      _$LiturgyResponseCopyWithImpl<$Res, LiturgyResponse>;
+  @useResult
+  $Res call(
+      {String data,
+      String liturgia,
+      String cor,
+      String dia,
+      String ofertas,
+      String comunhao,
+      LiturgyReading primeiraLeitura,
+      LiturgyReading? segundaLeitura,
+      LiturgySalmo salmo,
+      LiturgyReading evangelho,
+      LiturgyAntifonas antifonas});
+
+  $LiturgyReadingCopyWith<$Res> get primeiraLeitura;
+  $LiturgyReadingCopyWith<$Res>? get segundaLeitura;
+  $LiturgySalmoCopyWith<$Res> get salmo;
+  $LiturgyReadingCopyWith<$Res> get evangelho;
+  $LiturgyAntifonasCopyWith<$Res> get antifonas;
+}
+
+/// @nodoc
+class _$LiturgyResponseCopyWithImpl<$Res, $Val extends LiturgyResponse>
+    implements $LiturgyResponseCopyWith<$Res> {
+  _$LiturgyResponseCopyWithImpl(this._value, this._then);
+
+  // ignore: unused_field
+  final $Val _value;
+  // ignore: unused_field
+  final $Res Function($Val) _then;
+
+  @pragma('vm:prefer-inline')
+  @override
+  $Res call({
+    Object? data = null,
+    Object? liturgia = null,
+    Object? cor = null,
+    Object? dia = null,
+    Object? ofertas = null,
+    Object? comunhao = null,
+    Object? primeiraLeitura = null,
+    Object? segundaLeitura = freezed,
+    Object? salmo = null,
+    Object? evangelho = null,
+    Object? antifonas = null,
+  }) {
+    return _then(_value.copyWith(
+      data: null == data
+          ? _value.data
+          : data // ignore: cast_nullable_to_non_nullable
+              as String,
+      liturgia: null == liturgia
+          ? _value.liturgia
+          : liturgia // ignore: cast_nullable_to_non_nullable
+              as String,
+      cor: null == cor
+          ? _value.cor
+          : cor // ignore: cast_nullable_to_non_nullable
+              as String,
+      dia: null == dia
+          ? _value.dia
+          : dia // ignore: cast_nullable_to_non_nullable
+              as String,
+      ofertas: null == ofertas
+          ? _value.ofertas
+          : ofertas // ignore: cast_nullable_to_non_nullable
+              as String,
+      comunhao: null == comunhao
+          ? _value.comunhao
+          : comunhao // ignore: cast_nullable_to_non_nullable
+              as String,
+      primeiraLeitura: null == primeiraLeitura
+          ? _value.primeiraLeitura
+          : primeiraLeitura // ignore: cast_nullable_to_non_nullable
+              as LiturgyReading,
+      segundaLeitura: freezed == segundaLeitura
+          ? _value.segundaLeitura
+          : segundaLeitura // ignore: cast_nullable_to_non_nullable
+              as LiturgyReading?,
+      salmo: null == salmo
+          ? _value.salmo
+          : salmo // ignore: cast_nullable_to_non_nullable
+              as LiturgySalmo,
+      evangelho: null == evangelho
+          ? _value.evangelho
+          : evangelho // ignore: cast_nullable_to_non_nullable
+              as LiturgyReading,
+      antifonas: null == antifonas
+          ? _value.antifonas
+          : antifonas // ignore: cast_nullable_to_non_nullable
+              as LiturgyAntifonas,
+    ) as $Val);
+  }
+
+  @override
+  @pragma('vm:prefer-inline')
+  $LiturgyReadingCopyWith<$Res> get primeiraLeitura {
+    return $LiturgyReadingCopyWith<$Res>(_value.primeiraLeitura, (value) {
+      return _then(_value.copyWith(primeiraLeitura: value) as $Val);
+    });
+  }
+
+  @override
+  @pragma('vm:prefer-inline')
+  $LiturgyReadingCopyWith<$Res>? get segundaLeitura {
+    if (_value.segundaLeitura == null) {
+      return null;
+    }
+
+    return $LiturgyReadingCopyWith<$Res>(_value.segundaLeitura!, (value) {
+      return _then(_value.copyWith(segundaLeitura: value) as $Val);
+    });
+  }
+
+  @override
+  @pragma('vm:prefer-inline')
+  $LiturgySalmoCopyWith<$Res> get salmo {
+    return $LiturgySalmoCopyWith<$Res>(_value.salmo, (value) {
+      return _then(_value.copyWith(salmo: value) as $Val);
+    });
+  }
+
+  @override
+  @pragma('vm:prefer-inline')
+  $LiturgyReadingCopyWith<$Res> get evangelho {
+    return $LiturgyReadingCopyWith<$Res>(_value.evangelho, (value) {
+      return _then(_value.copyWith(evangelho: value) as $Val);
+    });
+  }
+
+  @override
+  @pragma('vm:prefer-inline')
+  $LiturgyAntifonasCopyWith<$Res> get antifonas {
+    return $LiturgyAntifonasCopyWith<$Res>(_value.antifonas, (value) {
+      return _then(_value.copyWith(antifonas: value) as $Val);
+    });
+  }
+}
+
+/// @nodoc
+abstract class _$$LiturgyResponseImplCopyWith<$Res>
+    implements $LiturgyResponseCopyWith<$Res> {
+  factory _$$LiturgyResponseImplCopyWith(_$LiturgyResponseImpl value,
+          $Res Function(_$LiturgyResponseImpl) then) =
+      __$$LiturgyResponseImplCopyWithImpl<$Res>;
+  @override
+  @useResult
+  $Res call(
+      {String data,
+      String liturgia,
+      String cor,
+      String dia,
+      String ofertas,
+      String comunhao,
+      LiturgyReading primeiraLeitura,
+      LiturgyReading? segundaLeitura,
+      LiturgySalmo salmo,
+      LiturgyReading evangelho,
+      LiturgyAntifonas antifonas});
+
+  @override
+  $LiturgyReadingCopyWith<$Res> get primeiraLeitura;
+  @override
+  $LiturgyReadingCopyWith<$Res>? get segundaLeitura;
+  @override
+  $LiturgySalmoCopyWith<$Res> get salmo;
+  @override
+  $LiturgyReadingCopyWith<$Res> get evangelho;
+  @override
+  $LiturgyAntifonasCopyWith<$Res> get antifonas;
+}
+
+/// @nodoc
+class __$$LiturgyResponseImplCopyWithImpl<$Res>
+    extends _$LiturgyResponseCopyWithImpl<$Res, _$LiturgyResponseImpl>
+    implements _$$LiturgyResponseImplCopyWith<$Res> {
+  __$$LiturgyResponseImplCopyWithImpl(
+      _$LiturgyResponseImpl _value, $Res Function(_$LiturgyResponseImpl) _then)
+      : super(_value, _then);
+
+  @pragma('vm:prefer-inline')
+  @override
+  $Res call({
+    Object? data = null,
+    Object? liturgia = null,
+    Object? cor = null,
+    Object? dia = null,
+    Object? ofertas = null,
+    Object? comunhao = null,
+    Object? primeiraLeitura = null,
+    Object? segundaLeitura = freezed,
+    Object? salmo = null,
+    Object? evangelho = null,
+    Object? antifonas = null,
+  }) {
+    return _then(_$LiturgyResponseImpl(
+      data: null == data
+          ? _value.data
+          : data // ignore: cast_nullable_to_non_nullable
+              as String,
+      liturgia: null == liturgia
+          ? _value.liturgia
+          : liturgia // ignore: cast_nullable_to_non_nullable
+              as String,
+      cor: null == cor
+          ? _value.cor
+          : cor // ignore: cast_nullable_to_non_nullable
+              as String,
+      dia: null == dia
+          ? _value.dia
+          : dia // ignore: cast_nullable_to_non_nullable
+              as String,
+      ofertas: null == ofertas
+          ? _value.ofertas
+          : ofertas // ignore: cast_nullable_to_non_nullable
+              as String,
+      comunhao: null == comunhao
+          ? _value.comunhao
+          : comunhao // ignore: cast_nullable_to_non_nullable
+              as String,
+      primeiraLeitura: null == primeiraLeitura
+          ? _value.primeiraLeitura
+          : primeiraLeitura // ignore: cast_nullable_to_non_nullable
+              as LiturgyReading,
+      segundaLeitura: freezed == segundaLeitura
+          ? _value.segundaLeitura
+          : segundaLeitura // ignore: cast_nullable_to_non_nullable
+              as LiturgyReading?,
+      salmo: null == salmo
+          ? _value.salmo
+          : salmo // ignore: cast_nullable_to_non_nullable
+              as LiturgySalmo,
+      evangelho: null == evangelho
+          ? _value.evangelho
+          : evangelho // ignore: cast_nullable_to_non_nullable
+              as LiturgyReading,
+      antifonas: null == antifonas
+          ? _value.antifonas
+          : antifonas // ignore: cast_nullable_to_non_nullable
+              as LiturgyAntifonas,
+    ));
+  }
+}
+
+/// @nodoc
+
+class _$LiturgyResponseImpl implements _LiturgyResponse {
+  const _$LiturgyResponseImpl(
+      {required this.data,
+      required this.liturgia,
+      required this.cor,
+      required this.dia,
+      required this.ofertas,
+      required this.comunhao,
+      required this.primeiraLeitura,
+      this.segundaLeitura,
+      required this.salmo,
+      required this.evangelho,
+      required this.antifonas});
+
+  @override
+  final String data;
+  @override
+  final String liturgia;
+  @override
+  final String cor;
+  @override
+  final String dia;
+  @override
+  final String ofertas;
+  @override
+  final String comunhao;
+  @override
+  final LiturgyReading primeiraLeitura;
+  @override
+  final LiturgyReading? segundaLeitura;
+  @override
+  final LiturgySalmo salmo;
+  @override
+  final LiturgyReading evangelho;
+  @override
+  final LiturgyAntifonas antifonas;
+
+  @override
+  String toString() {
+    return 'LiturgyResponse(data: $data, liturgia: $liturgia, cor: $cor, dia: $dia, ofertas: $ofertas, comunhao: $comunhao, primeiraLeitura: $primeiraLeitura, segundaLeitura: $segundaLeitura, salmo: $salmo, evangelho: $evangelho, antifonas: $antifonas)';
+  }
+
+  @override
+  bool operator ==(Object other) {
+    return identical(this, other) ||
+        (other.runtimeType == runtimeType &&
+            other is _$LiturgyResponseImpl &&
+            (identical(other.data, data) || other.data == data) &&
+            (identical(other.liturgia, liturgia) ||
+                other.liturgia == liturgia) &&
+            (identical(other.cor, cor) || other.cor == cor) &&
+            (identical(other.dia, dia) || other.dia == dia) &&
+            (identical(other.ofertas, ofertas) || other.ofertas == ofertas) &&
+            (identical(other.comunhao, comunhao) ||
+                other.comunhao == comunhao) &&
+            (identical(other.primeiraLeitura, primeiraLeitura) ||
+                other.primeiraLeitura == primeiraLeitura) &&
+            (identical(other.segundaLeitura, segundaLeitura) ||
+                other.segundaLeitura == segundaLeitura) &&
+            (identical(other.salmo, salmo) || other.salmo == salmo) &&
+            (identical(other.evangelho, evangelho) ||
+                other.evangelho == evangelho) &&
+            (identical(other.antifonas, antifonas) ||
+                other.antifonas == antifonas));
+  }
+
+  @override
+  int get hashCode => Object.hash(
+      runtimeType,
+      data,
+      liturgia,
+      cor,
+      dia,
+      ofertas,
+      comunhao,
+      primeiraLeitura,
+      segundaLeitura,
+      salmo,
+      evangelho,
+      antifonas);
+
+  @JsonKey(ignore: true)
+  @override
+  @pragma('vm:prefer-inline')
+  _$$LiturgyResponseImplCopyWith<_$LiturgyResponseImpl> get copyWith =>
+      __$$LiturgyResponseImplCopyWithImpl<_$LiturgyResponseImpl>(
+          this, _$identity);
+}
+
+abstract class _LiturgyResponse implements LiturgyResponse {
+  const factory _LiturgyResponse(
+      {required final String data,
+      required final String liturgia,
+      required final String cor,
+      required final String dia,
+      required final String ofertas,
+      required final String comunhao,
+      required final LiturgyReading primeiraLeitura,
+      final LiturgyReading? segundaLeitura,
+      required final LiturgySalmo salmo,
+      required final LiturgyReading evangelho,
+      required final LiturgyAntifonas antifonas}) = _$LiturgyResponseImpl;
+
+  @override
+  String get data;
+  @override
+  String get liturgia;
+  @override
+  String get cor;
+  @override
+  String get dia;
+  @override
+  String get ofertas;
+  @override
+  String get comunhao;
+  @override
+  LiturgyReading get primeiraLeitura;
+  @override
+  LiturgyReading? get segundaLeitura;
+  @override
+  LiturgySalmo get salmo;
+  @override
+  LiturgyReading get evangelho;
+  @override
+  LiturgyAntifonas get antifonas;
+  @override
+  @JsonKey(ignore: true)
+  _$$LiturgyResponseImplCopyWith<_$LiturgyResponseImpl> get copyWith =>
+      throw _privateConstructorUsedError;
+}
+
+LiturgyReading _$LiturgyReadingFromJson(Map<String, dynamic> json) {
+  return _LiturgyReading.fromJson(json);
+}
+
+/// @nodoc
+mixin _$LiturgyReading {
+  String get referencia => throw _privateConstructorUsedError;
+  String get titulo => throw _privateConstructorUsedError;
+  String get texto => throw _privateConstructorUsedError;
+
+  Map<String, dynamic> toJson() => throw _privateConstructorUsedError;
+  @JsonKey(ignore: true)
+  $LiturgyReadingCopyWith<LiturgyReading> get copyWith =>
+      throw _privateConstructorUsedError;
+}
+
+/// @nodoc
+abstract class $LiturgyReadingCopyWith<$Res> {
+  factory $LiturgyReadingCopyWith(
+          LiturgyReading value, $Res Function(LiturgyReading) then) =
+      _$LiturgyReadingCopyWithImpl<$Res, LiturgyReading>;
+  @useResult
+  $Res call({String referencia, String titulo, String texto});
+}
+
+/// @nodoc
+class _$LiturgyReadingCopyWithImpl<$Res, $Val extends LiturgyReading>
+    implements $LiturgyReadingCopyWith<$Res> {
+  _$LiturgyReadingCopyWithImpl(this._value, this._then);
+
+  // ignore: unused_field
+  final $Val _value;
+  // ignore: unused_field
+  final $Res Function($Val) _then;
+
+  @pragma('vm:prefer-inline')
+  @override
+  $Res call({
+    Object? referencia = null,
+    Object? titulo = null,
+    Object? texto = null,
+  }) {
+    return _then(_value.copyWith(
+      referencia: null == referencia
+          ? _value.referencia
+          : referencia // ignore: cast_nullable_to_non_nullable
+              as String,
+      titulo: null == titulo
+          ? _value.titulo
+          : titulo // ignore: cast_nullable_to_non_nullable
+              as String,
+      texto: null == texto
+          ? _value.texto
+          : texto // ignore: cast_nullable_to_non_nullable
+              as String,
+    ) as $Val);
+  }
+}
+
+/// @nodoc
+abstract class _$$LiturgyReadingImplCopyWith<$Res>
+    implements $LiturgyReadingCopyWith<$Res> {
+  factory _$$LiturgyReadingImplCopyWith(_$LiturgyReadingImpl value,
+          $Res Function(_$LiturgyReadingImpl) then) =
+      __$$LiturgyReadingImplCopyWithImpl<$Res>;
+  @override
+  @useResult
+  $Res call({String referencia, String titulo, String texto});
+}
+
+/// @nodoc
+class __$$LiturgyReadingImplCopyWithImpl<$Res>
+    extends _$LiturgyReadingCopyWithImpl<$Res, _$LiturgyReadingImpl>
+    implements _$$LiturgyReadingImplCopyWith<$Res> {
+  __$$LiturgyReadingImplCopyWithImpl(
+      _$LiturgyReadingImpl _value, $Res Function(_$LiturgyReadingImpl) _then)
+      : super(_value, _then);
+
+  @pragma('vm:prefer-inline')
+  @override
+  $Res call({
+    Object? referencia = null,
+    Object? titulo = null,
+    Object? texto = null,
+  }) {
+    return _then(_$LiturgyReadingImpl(
+      referencia: null == referencia
+          ? _value.referencia
+          : referencia // ignore: cast_nullable_to_non_nullable
+              as String,
+      titulo: null == titulo
+          ? _value.titulo
+          : titulo // ignore: cast_nullable_to_non_nullable
+              as String,
+      texto: null == texto
+          ? _value.texto
+          : texto // ignore: cast_nullable_to_non_nullable
+              as String,
+    ));
+  }
+}
+
+/// @nodoc
+@JsonSerializable()
+class _$LiturgyReadingImpl implements _LiturgyReading {
+  const _$LiturgyReadingImpl(
+      {required this.referencia, required this.titulo, required this.texto});
+
+  factory _$LiturgyReadingImpl.fromJson(Map<String, dynamic> json) =>
+      _$$LiturgyReadingImplFromJson(json);
+
+  @override
+  final String referencia;
+  @override
+  final String titulo;
+  @override
+  final String texto;
+
+  @override
+  String toString() {
+    return 'LiturgyReading(referencia: $referencia, titulo: $titulo, texto: $texto)';
+  }
+
+  @override
+  bool operator ==(Object other) {
+    return identical(this, other) ||
+        (other.runtimeType == runtimeType &&
+            other is _$LiturgyReadingImpl &&
+            (identical(other.referencia, referencia) ||
+                other.referencia == referencia) &&
+            (identical(other.titulo, titulo) || other.titulo == titulo) &&
+            (identical(other.texto, texto) || other.texto == texto));
+  }
+
+  @JsonKey(ignore: true)
+  @override
+  int get hashCode => Object.hash(runtimeType, referencia, titulo, texto);
+
+  @JsonKey(ignore: true)
+  @override
+  @pragma('vm:prefer-inline')
+  _$$LiturgyReadingImplCopyWith<_$LiturgyReadingImpl> get copyWith =>
+      __$$LiturgyReadingImplCopyWithImpl<_$LiturgyReadingImpl>(
+          this, _$identity);
+
+  @override
+  Map<String, dynamic> toJson() {
+    return _$$LiturgyReadingImplToJson(
+      this,
+    );
+  }
+}
+
+abstract class _LiturgyReading implements LiturgyReading {
+  const factory _LiturgyReading(
+      {required final String referencia,
+      required final String titulo,
+      required final String texto}) = _$LiturgyReadingImpl;
+
+  factory _LiturgyReading.fromJson(Map<String, dynamic> json) =
+      _$LiturgyReadingImpl.fromJson;
+
+  @override
+  String get referencia;
+  @override
+  String get titulo;
+  @override
+  String get texto;
+  @override
+  @JsonKey(ignore: true)
+  _$$LiturgyReadingImplCopyWith<_$LiturgyReadingImpl> get copyWith =>
+      throw _privateConstructorUsedError;
+}
+
+LiturgySalmo _$LiturgySalmoFromJson(Map<String, dynamic> json) {
+  return _LiturgySalmo.fromJson(json);
+}
+
+/// @nodoc
+mixin _$LiturgySalmo {
+  String get referencia => throw _privateConstructorUsedError;
+  String get refrao => throw _privateConstructorUsedError;
+  String get texto => throw _privateConstructorUsedError;
+
+  Map<String, dynamic> toJson() => throw _privateConstructorUsedError;
+  @JsonKey(ignore: true)
+  $LiturgySalmoCopyWith<LiturgySalmo> get copyWith =>
+      throw _privateConstructorUsedError;
+}
+
+/// @nodoc
+abstract class $LiturgySalmoCopyWith<$Res> {
+  factory $LiturgySalmoCopyWith(
+          LiturgySalmo value, $Res Function(LiturgySalmo) then) =
+      _$LiturgySalmoCopyWithImpl<$Res, LiturgySalmo>;
+  @useResult
+  $Res call({String referencia, String refrao, String texto});
+}
+
+/// @nodoc
+class _$LiturgySalmoCopyWithImpl<$Res, $Val extends LiturgySalmo>
+    implements $LiturgySalmoCopyWith<$Res> {
+  _$LiturgySalmoCopyWithImpl(this._value, this._then);
+
+  // ignore: unused_field
+  final $Val _value;
+  // ignore: unused_field
+  final $Res Function($Val) _then;
+
+  @pragma('vm:prefer-inline')
+  @override
+  $Res call({
+    Object? referencia = null,
+    Object? refrao = null,
+    Object? texto = null,
+  }) {
+    return _then(_value.copyWith(
+      referencia: null == referencia
+          ? _value.referencia
+          : referencia // ignore: cast_nullable_to_non_nullable
+              as String,
+      refrao: null == refrao
+          ? _value.refrao
+          : refrao // ignore: cast_nullable_to_non_nullable
+              as String,
+      texto: null == texto
+          ? _value.texto
+          : texto // ignore: cast_nullable_to_non_nullable
+              as String,
+    ) as $Val);
+  }
+}
+
+/// @nodoc
+abstract class _$$LiturgySalmoImplCopyWith<$Res>
+    implements $LiturgySalmoCopyWith<$Res> {
+  factory _$$LiturgySalmoImplCopyWith(
+          _$LiturgySalmoImpl value, $Res Function(_$LiturgySalmoImpl) then) =
+      __$$LiturgySalmoImplCopyWithImpl<$Res>;
+  @override
+  @useResult
+  $Res call({String referencia, String refrao, String texto});
+}
+
+/// @nodoc
+class __$$LiturgySalmoImplCopyWithImpl<$Res>
+    extends _$LiturgySalmoCopyWithImpl<$Res, _$LiturgySalmoImpl>
+    implements _$$LiturgySalmoImplCopyWith<$Res> {
+  __$$LiturgySalmoImplCopyWithImpl(
+      _$LiturgySalmoImpl _value, $Res Function(_$LiturgySalmoImpl) _then)
+      : super(_value, _then);
+
+  @pragma('vm:prefer-inline')
+  @override
+  $Res call({
+    Object? referencia = null,
+    Object? refrao = null,
+    Object? texto = null,
+  }) {
+    return _then(_$LiturgySalmoImpl(
+      referencia: null == referencia
+          ? _value.referencia
+          : referencia // ignore: cast_nullable_to_non_nullable
+              as String,
+      refrao: null == refrao
+          ? _value.refrao
+          : refrao // ignore: cast_nullable_to_non_nullable
+              as String,
+      texto: null == texto
+          ? _value.texto
+          : texto // ignore: cast_nullable_to_non_nullable
+              as String,
+    ));
+  }
+}
+
+/// @nodoc
+@JsonSerializable()
+class _$LiturgySalmoImpl implements _LiturgySalmo {
+  const _$LiturgySalmoImpl(
+      {required this.referencia, required this.refrao, required this.texto});
+
+  factory _$LiturgySalmoImpl.fromJson(Map<String, dynamic> json) =>
+      _$$LiturgySalmoImplFromJson(json);
+
+  @override
+  final String referencia;
+  @override
+  final String refrao;
+  @override
+  final String texto;
+
+  @override
+  String toString() {
+    return 'LiturgySalmo(referencia: $referencia, refrao: $refrao, texto: $texto)';
+  }
+
+  @override
+  bool operator ==(Object other) {
+    return identical(this, other) ||
+        (other.runtimeType == runtimeType &&
+            other is _$LiturgySalmoImpl &&
+            (identical(other.referencia, referencia) ||
+                other.referencia == referencia) &&
+            (identical(other.refrao, refrao) || other.refrao == refrao) &&
+            (identical(other.texto, texto) || other.texto == texto));
+  }
+
+  @JsonKey(ignore: true)
+  @override
+  int get hashCode => Object.hash(runtimeType, referencia, refrao, texto);
+
+  @JsonKey(ignore: true)
+  @override
+  @pragma('vm:prefer-inline')
+  _$$LiturgySalmoImplCopyWith<_$LiturgySalmoImpl> get copyWith =>
+      __$$LiturgySalmoImplCopyWithImpl<_$LiturgySalmoImpl>(this, _$identity);
+
+  @override
+  Map<String, dynamic> toJson() {
+    return _$$LiturgySalmoImplToJson(
+      this,
+    );
+  }
+}
+
+abstract class _LiturgySalmo implements LiturgySalmo {
+  const factory _LiturgySalmo(
+      {required final String referencia,
+      required final String refrao,
+      required final String texto}) = _$LiturgySalmoImpl;
+
+  factory _LiturgySalmo.fromJson(Map<String, dynamic> json) =
+      _$LiturgySalmoImpl.fromJson;
+
+  @override
+  String get referencia;
+  @override
+  String get refrao;
+  @override
+  String get texto;
+  @override
+  @JsonKey(ignore: true)
+  _$$LiturgySalmoImplCopyWith<_$LiturgySalmoImpl> get copyWith =>
+      throw _privateConstructorUsedError;
+}
+
+LiturgyAntifonas _$LiturgyAntifonasFromJson(Map<String, dynamic> json) {
+  return _LiturgyAntifonas.fromJson(json);
+}
+
+/// @nodoc
+mixin _$LiturgyAntifonas {
+  String get entrada => throw _privateConstructorUsedError;
+  String get comunhao => throw _privateConstructorUsedError;
+
+  Map<String, dynamic> toJson() => throw _privateConstructorUsedError;
+  @JsonKey(ignore: true)
+  $LiturgyAntifonasCopyWith<LiturgyAntifonas> get copyWith =>
+      throw _privateConstructorUsedError;
+}
+
+/// @nodoc
+abstract class $LiturgyAntifonasCopyWith<$Res> {
+  factory $LiturgyAntifonasCopyWith(
+          LiturgyAntifonas value, $Res Function(LiturgyAntifonas) then) =
+      _$LiturgyAntifonasCopyWithImpl<$Res, LiturgyAntifonas>;
+  @useResult
+  $Res call({String entrada, String comunhao});
+}
+
+/// @nodoc
+class _$LiturgyAntifonasCopyWithImpl<$Res, $Val extends LiturgyAntifonas>
+    implements $LiturgyAntifonasCopyWith<$Res> {
+  _$LiturgyAntifonasCopyWithImpl(this._value, this._then);
+
+  // ignore: unused_field
+  final $Val _value;
+  // ignore: unused_field
+  final $Res Function($Val) _then;
+
+  @pragma('vm:prefer-inline')
+  @override
+  $Res call({
+    Object? entrada = null,
+    Object? comunhao = null,
+  }) {
+    return _then(_value.copyWith(
+      entrada: null == entrada
+          ? _value.entrada
+          : entrada // ignore: cast_nullable_to_non_nullable
+              as String,
+      comunhao: null == comunhao
+          ? _value.comunhao
+          : comunhao // ignore: cast_nullable_to_non_nullable
+              as String,
+    ) as $Val);
+  }
+}
+
+/// @nodoc
+abstract class _$$LiturgyAntifonasImplCopyWith<$Res>
+    implements $LiturgyAntifonasCopyWith<$Res> {
+  factory _$$LiturgyAntifonasImplCopyWith(_$LiturgyAntifonasImpl value,
+          $Res Function(_$LiturgyAntifonasImpl) then) =
+      __$$LiturgyAntifonasImplCopyWithImpl<$Res>;
+  @override
+  @useResult
+  $Res call({String entrada, String comunhao});
+}
+
+/// @nodoc
+class __$$LiturgyAntifonasImplCopyWithImpl<$Res>
+    extends _$LiturgyAntifonasCopyWithImpl<$Res, _$LiturgyAntifonasImpl>
+    implements _$$LiturgyAntifonasImplCopyWith<$Res> {
+  __$$LiturgyAntifonasImplCopyWithImpl(_$LiturgyAntifonasImpl _value,
+      $Res Function(_$LiturgyAntifonasImpl) _then)
+      : super(_value, _then);
+
+  @pragma('vm:prefer-inline')
+  @override
+  $Res call({
+    Object? entrada = null,
+    Object? comunhao = null,
+  }) {
+    return _then(_$LiturgyAntifonasImpl(
+      entrada: null == entrada
+          ? _value.entrada
+          : entrada // ignore: cast_nullable_to_non_nullable
+              as String,
+      comunhao: null == comunhao
+          ? _value.comunhao
+          : comunhao // ignore: cast_nullable_to_non_nullable
+              as String,
+    ));
+  }
+}
+
+/// @nodoc
+@JsonSerializable()
+class _$LiturgyAntifonasImpl implements _LiturgyAntifonas {
+  const _$LiturgyAntifonasImpl({required this.entrada, required this.comunhao});
+
+  factory _$LiturgyAntifonasImpl.fromJson(Map<String, dynamic> json) =>
+      _$$LiturgyAntifonasImplFromJson(json);
+
+  @override
+  final String entrada;
+  @override
+  final String comunhao;
+
+  @override
+  String toString() {
+    return 'LiturgyAntifonas(entrada: $entrada, comunhao: $comunhao)';
+  }
+
+  @override
+  bool operator ==(Object other) {
+    return identical(this, other) ||
+        (other.runtimeType == runtimeType &&
+            other is _$LiturgyAntifonasImpl &&
+            (identical(other.entrada, entrada) || other.entrada == entrada) &&
+            (identical(other.comunhao, comunhao) ||
+                other.comunhao == comunhao));
+  }
+
+  @JsonKey(ignore: true)
+  @override
+  int get hashCode => Object.hash(runtimeType, entrada, comunhao);
+
+  @JsonKey(ignore: true)
+  @override
+  @pragma('vm:prefer-inline')
+  _$$LiturgyAntifonasImplCopyWith<_$LiturgyAntifonasImpl> get copyWith =>
+      __$$LiturgyAntifonasImplCopyWithImpl<_$LiturgyAntifonasImpl>(
+          this, _$identity);
+
+  @override
+  Map<String, dynamic> toJson() {
+    return _$$LiturgyAntifonasImplToJson(
+      this,
+    );
+  }
+}
+
+abstract class _LiturgyAntifonas implements LiturgyAntifonas {
+  const factory _LiturgyAntifonas(
+      {required final String entrada,
+      required final String comunhao}) = _$LiturgyAntifonasImpl;
+
+  factory _LiturgyAntifonas.fromJson(Map<String, dynamic> json) =
+      _$LiturgyAntifonasImpl.fromJson;
+
+  @override
+  String get entrada;
+  @override
+  String get comunhao;
+  @override
+  @JsonKey(ignore: true)
+  _$$LiturgyAntifonasImplCopyWith<_$LiturgyAntifonasImpl> get copyWith =>
+      throw _privateConstructorUsedError;
+}

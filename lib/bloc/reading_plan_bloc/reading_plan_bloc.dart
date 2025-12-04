@@ -19,13 +19,18 @@ class ReadingPlanBloc extends Bloc<ReadingPlanEvent, ReadingPlanState> {
     emit(ReadingPlanLoading());
     try {
       final plans = await repository.getAllPlans();
-      // Filter active plan if any
+      // Filter active plan if any - a plan is active if currentDay is not null and > 0
       final activePlan = plans.cast<ReadingPlanEntity?>().firstWhere(
         (p) => p?.currentDay != null && p!.currentDay! > 0,
         orElse: () => null,
       );
       
-      emit(ReadingPlansLoaded(plans: plans, activePlan: activePlan));
+      // Filter recommended plans - exclude active plan from recommended list
+      final recommendedPlans = plans.where((p) => 
+        p.currentDay == null || p.currentDay == 0 || p.id != activePlan?.id
+      ).toList();
+      
+      emit(ReadingPlansLoaded(plans: recommendedPlans, activePlan: activePlan));
     } catch (e) {
       emit(ReadingPlanError(e.toString()));
     }
@@ -49,6 +54,16 @@ class ReadingPlanBloc extends Bloc<ReadingPlanEvent, ReadingPlanState> {
       if (currentState.activePlan != null) {
         try {
           await repository.markDayCompleted(currentState.activePlan!.id, event.day);
+          
+          // Advance to next day if current day is completed
+          final currentDay = currentState.activePlan!.currentDay ?? 1;
+          if (event.day == currentDay && currentDay < currentState.activePlan!.durationDays) {
+            await repository.setCurrentDay(currentState.activePlan!.id, currentDay + 1);
+          } else if (event.day == currentDay && currentDay >= currentState.activePlan!.durationDays) {
+            // Plan completed
+            await repository.markPlanCompleted(currentState.activePlan!.id);
+          }
+          
           add(const LoadReadingPlans());
         } catch (e) {
           emit(ReadingPlanError(e.toString()));
