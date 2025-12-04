@@ -34,25 +34,30 @@ class _BibleReadingScreenState extends State<BibleReadingScreen> {
     super.initState();
     context.read<BibleBloc>().add(const LoadBible());
     context.read<FavoritesBloc>().add(const LoadFavorites());
-    _checkPremiumAndLoadAds();
+    // Always try to load ads - they won't show if premium
+    _loadBannerAd();
+    _loadInterstitialAd();
   }
 
-  Future<void> _checkPremiumAndLoadAds() async {
-    final purchaseRepo = getIt<PurchaseRepository>();
-    final isPremium = await purchaseRepo.isPremium();
-    
-    if (!isPremium) {
-      _loadBannerAd();
-      _loadInterstitialAd();
+  Future<void> _loadBannerAd() async {
+    // Check if premium before loading
+    try {
+      final purchaseRepo = getIt<PurchaseRepository>();
+      final isPremium = await purchaseRepo.isPremium();
+      if (isPremium) {
+        print('Skipping banner ad load - user is premium');
+        return;
+      }
+    } catch (e) {
+      print('Error checking premium status, loading ad anyway: $e');
     }
-  }
-
-  void _loadBannerAd() {
+    
     _bannerAd = BannerAd(
       size: AdSize.banner,
       adUnitId: 'ca-app-pub-9415784539457110/9432634518',
       listener: BannerAdListener(
         onAdLoaded: (_) {
+          print('Banner ad loaded successfully');
           setState(() {
             _isBannerAdReady = true;
           });
@@ -60,18 +65,34 @@ class _BibleReadingScreenState extends State<BibleReadingScreen> {
         onAdFailedToLoad: (ad, err) {
           print('Banner failed to load: $err');
           ad.dispose();
+          setState(() {
+            _isBannerAdReady = false;
+          });
         },
       ),
       request: const AdRequest(),
     )..load();
   }
 
-  void _loadInterstitialAd() {
+  Future<void> _loadInterstitialAd() async {
+    // Check if premium before loading
+    try {
+      final purchaseRepo = getIt<PurchaseRepository>();
+      final isPremium = await purchaseRepo.isPremium();
+      if (isPremium) {
+        print('Skipping interstitial ad load - user is premium');
+        return;
+      }
+    } catch (e) {
+      print('Error checking premium status, loading ad anyway: $e');
+    }
+    
     InterstitialAd.load(
       adUnitId: 'ca-app-pub-9415784539457110/2874771507',
       request: const AdRequest(),
       adLoadCallback: InterstitialAdLoadCallback(
         onAdLoaded: (InterstitialAd ad) {
+          print('Interstitial ad loaded successfully');
           _interstitialAd = ad;
           _interstitialAd?.fullScreenContentCallback = FullScreenContentCallback(
             onAdDismissedFullScreenContent: (InterstitialAd ad) {
@@ -93,15 +114,32 @@ class _BibleReadingScreenState extends State<BibleReadingScreen> {
   }
 
   Future<void> _showInterstitialAdIfNeeded() async {
-    final purchaseRepo = getIt<PurchaseRepository>();
-    final isPremium = await purchaseRepo.isPremium();
-    
-    if (isPremium) return; // Don't show ads if premium
-    
-    _chapterReadCount++;
-    if (_chapterReadCount >= _chaptersForInterstitial && _interstitialAd != null) {
-      _interstitialAd?.show();
-      _chapterReadCount = 0; // Reset counter
+    try {
+      final purchaseRepo = getIt<PurchaseRepository>();
+      final isPremium = await purchaseRepo.isPremium();
+      
+      if (isPremium) {
+        print('Skipping interstitial - user is premium');
+        return; // Don't show ads if premium
+      }
+      
+      _chapterReadCount++;
+      print('Chapter read count: $_chapterReadCount / $_chaptersForInterstitial');
+      print('Interstitial ad available: ${_interstitialAd != null}');
+      
+      if (_chapterReadCount >= _chaptersForInterstitial) {
+        if (_interstitialAd != null) {
+          print('Showing interstitial ad');
+          _interstitialAd?.show();
+          _chapterReadCount = 0; // Reset counter
+        } else {
+          print('Interstitial ad is null, trying to reload...');
+          await _loadInterstitialAd();
+          // Don't reset counter, will show on next chapter
+        }
+      }
+    } catch (e) {
+      print('Error in _showInterstitialAdIfNeeded: $e');
     }
   }
 
@@ -183,6 +221,7 @@ class _BibleReadingScreenState extends State<BibleReadingScreen> {
   }
   
   void _onChapterRead() {
+    print('_onChapterRead called');
     _showInterstitialAdIfNeeded(); // Show interstitial after reading chapters
     context.read<StreakBloc>().add(const UpdateStreak());
   }
@@ -371,22 +410,23 @@ class _BibleReadingScreenState extends State<BibleReadingScreen> {
               },
             ),
           ),
-          // Banner Ad (only show if not premium)
-          FutureBuilder<bool>(
-            future: getIt<PurchaseRepository>().isPremium(),
-            builder: (context, snapshot) {
-              final isPremium = snapshot.data ?? false;
-              if (isPremium || !_isBannerAdReady || _bannerAd == null || _selectedBook != null) {
-                return const SizedBox.shrink();
-              }
-              return Container(
-                alignment: Alignment.center,
-                width: _bannerAd!.size.width.toDouble(),
-                height: _bannerAd!.size.height.toDouble(),
-                child: AdWidget(ad: _bannerAd!),
-              );
-            },
-          ),
+          // Banner Ad (only show if not premium and ready)
+          if (_isBannerAdReady && _bannerAd != null && _selectedBook == null)
+            FutureBuilder<bool>(
+              future: getIt<PurchaseRepository>().isPremium(),
+              builder: (context, snapshot) {
+                final isPremium = snapshot.data ?? false;
+                if (isPremium) {
+                  return const SizedBox.shrink();
+                }
+                return Container(
+                  alignment: Alignment.center,
+                  width: _bannerAd!.size.width.toDouble(),
+                  height: _bannerAd!.size.height.toDouble(),
+                  child: AdWidget(ad: _bannerAd!),
+                );
+              },
+            ),
         ],
       ),
     );

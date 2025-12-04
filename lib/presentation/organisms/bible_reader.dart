@@ -48,10 +48,12 @@ class _BibleReaderState extends State<BibleReader> {
       )).toList();
     }
     
-    // Notify that the initial chapter was loaded
-    WidgetsBinding.instance.addPostFrameCallback((_) {
-      widget.onChapterRead?.call();
-    });
+    // Notify that the initial chapter was loaded only if we have a chapter selected
+    if (widget.initialChapter != null) {
+      WidgetsBinding.instance.addPostFrameCallback((_) {
+        widget.onChapterRead?.call();
+      });
+    }
   }
 
   void _loadChapters(String bookName) {
@@ -63,12 +65,16 @@ class _BibleReaderState extends State<BibleReader> {
   }
 
   void _loadChapter(String bookName, int chapter) {
+    print('_loadChapter called: $bookName chapter $chapter');
     setState(() {
       _currentBook = bookName;
       _currentChapter = chapter;
     });
-    // Notify that a chapter was read
-    widget.onChapterRead?.call();
+    // Notify that a chapter was read - use post frame callback to ensure state is updated
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      print('Calling onChapterRead callback');
+      widget.onChapterRead?.call();
+    });
   }
 
   void _previousChapter() {

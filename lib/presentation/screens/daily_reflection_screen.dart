@@ -1,9 +1,12 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:google_fonts/google_fonts.dart';
+import 'package:google_mobile_ads/google_mobile_ads.dart';
 import '../../core/constants/app_constants.dart';
 import '../../bloc/daily_reflection_bloc/daily_reflection_bloc.dart';
 import '../../domain/entities/bible_entity.dart';
+import '../../core/di/injection.dart';
+import '../../data/repositories/purchase_repository.dart';
 
 import 'package:share_plus/share_plus.dart';
 
@@ -15,6 +18,56 @@ class DailyReflectionScreen extends StatefulWidget {
 }
 
 class _DailyReflectionScreenState extends State<DailyReflectionScreen> {
+  BannerAd? _bannerAd;
+  bool _isBannerAdReady = false;
+
+  @override
+  void initState() {
+    super.initState();
+    _loadBannerAd();
+  }
+
+  @override
+  void dispose() {
+    _bannerAd?.dispose();
+    super.dispose();
+  }
+
+  Future<void> _loadBannerAd() async {
+    // Check if premium before loading
+    try {
+      final purchaseRepo = getIt<PurchaseRepository>();
+      final isPremium = await purchaseRepo.isPremium();
+      if (isPremium) {
+        print('Skipping banner ad load in daily reflection - user is premium');
+        return;
+      }
+    } catch (e) {
+      print('Error checking premium status, loading ad anyway: $e');
+    }
+
+    _bannerAd = BannerAd(
+      size: AdSize.banner,
+      adUnitId: 'ca-app-pub-9415784539457110/9432634518',
+      listener: BannerAdListener(
+        onAdLoaded: (_) {
+          print('Banner ad loaded successfully in daily reflection');
+          setState(() {
+            _isBannerAdReady = true;
+          });
+        },
+        onAdFailedToLoad: (ad, err) {
+          print('Banner failed to load in daily reflection: $err');
+          ad.dispose();
+          setState(() {
+            _isBannerAdReady = false;
+          });
+        },
+      ),
+      request: const AdRequest(),
+    )..load();
+  }
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -66,21 +119,44 @@ class _DailyReflectionScreenState extends State<DailyReflectionScreen> {
                   ],
                 ),
               ),
-              child: SingleChildScrollView(
-                padding: const EdgeInsets.fromLTRB(
-                  AppConstants.defaultPadding,
-                  kToolbarHeight + 40,
-                  AppConstants.defaultPadding,
-                  AppConstants.defaultPadding,
-                ),
-                child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    _buildDateHeader(state.reflection.date),
-                    const SizedBox(height: AppConstants.largePadding),
-                    _buildReflectionCard(state.reflection),
-                  ],
-                ),
+              child: Column(
+                children: [
+                  Expanded(
+                    child: SingleChildScrollView(
+                      padding: const EdgeInsets.fromLTRB(
+                        AppConstants.defaultPadding,
+                        kToolbarHeight + 40,
+                        AppConstants.defaultPadding,
+                        AppConstants.defaultPadding,
+                      ),
+                      child: Column(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                          _buildDateHeader(state.reflection.date),
+                          const SizedBox(height: AppConstants.largePadding),
+                          _buildReflectionCard(state.reflection),
+                        ],
+                      ),
+                    ),
+                  ),
+                  // Banner Ad (only show if not premium and ready)
+                  if (_isBannerAdReady && _bannerAd != null)
+                    FutureBuilder<bool>(
+                      future: getIt<PurchaseRepository>().isPremium(),
+                      builder: (context, snapshot) {
+                        final isPremium = snapshot.data ?? false;
+                        if (isPremium) {
+                          return const SizedBox.shrink();
+                        }
+                        return Container(
+                          alignment: Alignment.center,
+                          width: _bannerAd!.size.width.toDouble(),
+                          height: _bannerAd!.size.height.toDouble(),
+                          child: AdWidget(ad: _bannerAd!),
+                        );
+                      },
+                    ),
+                ],
               ),
             );
           }
